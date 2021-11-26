@@ -28,13 +28,12 @@ logging.basicConfig(format=u'%(filename)+13s [ LINE:%(lineno)-4s] %(levelname)-8
 bot = Bot(token=TOKEN)
 dp = Dispatcher(bot, storage=MemoryStorage())
 dp.middleware.setup(LoggingMiddleware())
-db = DBHelper()
 taddr = TgAddresses()
+taddr.tg_ids = {}
 
 @dp.message_handler(commands=['start'], state='*')
 async def process_start_command(message: types.Message):
-    db_usr = None
-    taddr.tg_ids = {}
+
     logging.info("Chat ID = " + str(message.chat.id)) 
     try:
         user_channel_status = await bot.get_chat_member(chat_id=PARKING_CHAT_ID, user_id=message.from_user.id)
@@ -55,10 +54,13 @@ async def process_start_command(message: types.Message):
         logging.error(f"The error '{e}' occurred")   
         return None
 
+    db = DBHelper()
     db_usr = await db.check_user(message.from_user)
     if not db_usr:
         await message.reply(MESSAGES['nlo'])
         return None
+    del db
+
     await TestStates.START_STATE.set()
     await message.reply(MESSAGES['start'], reply_markup=kb.meet_btn_markup)
 
@@ -77,7 +79,6 @@ async def process_help_command(message: types.Message, state: FSMContext):
     await state.finish()
     await TestStates.START_STATE.set()
     await bot.send_message(message.from_user.id, MESSAGES['help'])
-    #await db.get_all_data(message.from_user)
     await bot.send_message(message.from_user.id, "Выберите пункт меню!", reply_markup=kb.meet_btn_markup)
 
 @dp.callback_query_handler(lambda c: c.data == 'help_btn', state='*')
@@ -106,7 +107,9 @@ async def process_callback_settings_btn(callback_query: types.CallbackQuery):
     await bot.answer_callback_query(callback_query.id)
     await bot.send_message(callback_query.from_user.id, f"Привет {callback_query.from_user.mention}, Какие данные будем добавлять/править? ", reply_markup=kb.settings_btn_markup)
     await TestStates.SETTINGS_STATE.set()
+    db = DBHelper()
     contacts = await db.get_all_data(from_user=callback_query.from_user, datatype='all')
+    del db
     info_message = await prepare_info_for_message(contacts, callback_query.from_user.mention)
     await bot.send_message(callback_query.from_user.id, info_message)
    
@@ -138,11 +141,13 @@ async def process_name_phone_not_valid(message: types.Message, state: FSMContext
 
 @dp.message_handler(lambda msg: Valid.is_phone(msg.text), state = TestStates.ADD_PHONE_STATE)
 async def process_name_valid_phone(message: types.Message, state: FSMContext):
+    db = DBHelper()
     await db.add_contact(message.from_user, message.text)
     await TestStates.SETTINGS_STATE.set()
     await message.reply(f"Вы сохранили/обновили номер как свой контакт: \n\n☎️ " + message.text, reply_markup=kb.settings_btn_markup)
     contacts = await db.get_all_data(from_user=message.from_user)
     info_message = await prepare_info_for_message(contacts, message.from_user.mention)
+    del db
     await bot.send_message(message.from_user.id, info_message)
     #logging.debug(contacts['contacts'])
 
@@ -159,11 +164,13 @@ async def process_name_del_phone_not_valid(message: types.Message, state: FSMCon
 
 @dp.message_handler(lambda msg: Valid.is_phone(msg.text), state = TestStates.DEL_PHONE_STATE)
 async def process_name_del_valid_phone(message: types.Message, state: FSMContext):
+    db = DBHelper()
     await db.del_contact(message.from_user, message.text)
     await TestStates.SETTINGS_STATE.set()
     await message.reply(f"Вы удалили номер из своих контактов: \n\n☎️ " + message.text, reply_markup=kb.settings_btn_markup)
     contacts = await db.get_all_data(from_user=message.from_user)
     info_message = await prepare_info_for_message(contacts, message.from_user.mention)
+    del db
     await bot.send_message(message.from_user.id, info_message)
 
 ###### CHANGE MM #####################
@@ -190,11 +197,13 @@ async def process_name_mm_not_valid(message: types.Message, state: FSMContext):
 
 @dp.message_handler(lambda msg: Valid.is_mm(msg.text), state = TestStates.ADD_MM_STATE)
 async def process_name_valid_mm(message: types.Message, state: FSMContext):
+    db = DBHelper()
     await db.add_mm(message.from_user, message.text)
     await TestStates.SETTINGS_STATE.set()
     await message.reply(f"Вы сохранили новое машиноместо: \n\n🅿️ " + message.text, reply_markup=kb.settings_btn_markup)
     park_mm_info = await db.get_all_data(from_user=message.from_user)
     info_message = await prepare_info_for_message(park_mm_info, message.from_user.mention)
+    del db
     await bot.send_message(message.from_user.id, info_message)
 
 ########## del
@@ -210,11 +219,13 @@ async def process_name_del_mm_not_valid(message: types.Message, state: FSMContex
 
 @dp.message_handler(lambda msg: Valid.is_mm(msg.text), state = TestStates.DEL_MM_STATE)
 async def process_name_del_valid_mm(message: types.Message, state: FSMContext):
+    db = DBHelper()
     await db.del_mm(message.from_user, message.text)
     await TestStates.SETTINGS_STATE.set()
     await message.reply(f"⛔️ Вы удалили машиноместо: \n\n🅿️ " + message.text, reply_markup=kb.settings_btn_markup)
     park_mm_info = await db.get_all_data(from_user=message.from_user)
     info_message = await prepare_info_for_message(park_mm_info, message.from_user.mention)
+    del db
     await bot.send_message(message.from_user.id, info_message)
 
 ###### CHANGE AUTO #####################
@@ -241,11 +252,13 @@ async def process_name_au_not_valid(message: types.Message, state: FSMContext):
 
 @dp.message_handler(lambda msg: Valid.is_auto(msg.text), state = TestStates.ADD_AUTO_STATE)
 async def process_name_valid_au(message: types.Message, state: FSMContext):
+    db = DBHelper()
     await db.add_auto(message.from_user, message.text)
     await TestStates.SETTINGS_STATE.set()
     await message.reply(f"Вы сохранили новый автомобиль: \n\n🚗 " + Valid.cyrillic2latin(message.text), reply_markup=kb.settings_btn_markup)
     auto_info = await db.get_all_data(from_user=message.from_user)
     info_message = await prepare_info_for_message(auto_info, message.from_user.mention)
+    del db
     await bot.send_message(message.from_user.id, info_message)
 
 ########## del
@@ -261,11 +274,13 @@ async def process_name_del_auto_not_valid(message: types.Message, state: FSMCont
 
 @dp.message_handler(lambda msg: Valid.is_auto(msg.text), state = TestStates.DEL_AUTO_STATE)
 async def process_name_del_valid_auto(message: types.Message, state: FSMContext):
+    db = DBHelper()
     await db.del_auto(message.from_user, message.text)
     await TestStates.SETTINGS_STATE.set()
     await message.reply(f"🚶 Вы удалили номер автомобиля: \n\n🚗 " + message.text, reply_markup=kb.settings_btn_markup)
     auto_info = await db.get_all_data(from_user=message.from_user)
     info_message = await prepare_info_for_message(auto_info, message.from_user.mention)
+    del db
     await bot.send_message(message.from_user.id, info_message)
 
 ############################## MESSAGES ################################
@@ -293,9 +308,11 @@ async def process_name_mm_not_valid(message: types.Message, state: FSMContext):
 
 @dp.message_handler(lambda msg: Valid.is_mm(msg.text), state = TestStates.SEND_MESSAGE_STATE_MM)
 async def process_message_valid_mm(message: types.Message, state: FSMContext):
+    db = DBHelper()
     all_tg_ids = await db.get_users_mm(message.text)
     logging.info(all_tg_ids)
     info_message = await prepare_tg_info_for_message("ММ №" + message.text, all_tg_ids)
+    del db
     if "Не найдено" in info_message:
         await message.reply(info_message, reply_markup=kb.cancel_btn_markup)
         await TestStates.SEND_MESSAGE_STATE.set()
@@ -340,9 +357,11 @@ async def process_name_au_message_not_valid(message: types.Message, state: FSMCo
 
 @dp.message_handler(lambda msg: Valid.is_auto(msg.text), state = TestStates.SEND_MESSAGE_STATE_AU)
 async def process_message_valid_mm(message: types.Message, state: FSMContext):
+    db = DBHelper()
     all_tg_ids = await db.get_users_auto(Valid.cyrillic2latin(message.text))
     logging.info(all_tg_ids)
     info_message = await prepare_tg_info_for_message("AUTO №" + message.text, all_tg_ids)
+    del db
     if "Не найдено" in info_message:
         await message.reply(info_message, reply_markup=kb.cancel_btn_markup)
         await TestStates.SEND_MESSAGE_STATE.set()
@@ -380,9 +399,11 @@ async def process_name_phone_not_valid(message: types.Message, state: FSMContext
 
 @dp.message_handler(lambda msg: Valid.is_phone(msg.text), state = TestStates.SEND_MESSAGE_STATE_MY)
 async def process_message_valid_phone(message: types.Message, state: FSMContext):
+    db = DBHelper()
     all_tg_ids = await db.get_users_phone(message.text)
     logging.info(all_tg_ids)
     info_message = await prepare_tg_info_for_message("PHONE №" + message.text, all_tg_ids)
+    del db
     if "Не найдено" in info_message:
         await message.reply(info_message, reply_markup=kb.cancel_btn_markup)
         await TestStates.SEND_MESSAGE_STATE.set()

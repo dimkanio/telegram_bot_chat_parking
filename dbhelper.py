@@ -16,12 +16,12 @@ class DBHelper:
         self.dbdriver = DBDriver()
 
         if not self.dbdriver:
-            logging.info("DBDriver is not created")
+            logging.info("DBDriver was not created")
             return None
 
     def __del__(self):
         if self.dbdriver:
-            self.dbdriver.close()
+            del self.dbdriver
     
     async def check_user(self, from_user: types.User):
 
@@ -42,13 +42,14 @@ class DBHelper:
             return None
 
         select_id_query = "SELECT * FROM users WHERE tg_user_id = {id}".format(id = self.from_user.id)
-        logging.info("NEW USER: " + str(select_id_query)) 
-        user_row = self.dbdriver.select_query(query=select_id_query, qtype='one')
+        logging.info("FIND USER: " + str(select_id_query)) 
+        user_row = self.dbdriver.select_query(query=select_id_query, qtype='all')
+        logging.info(user_row) 
 
         if not user_row:
-            logging.info("NEW USER " + str(from_user.mention)) 
-            insert_user_query = "INSERT OR REPLACE INTO users (tg_user_id, first_name, last_name, is_in_chat, tg_mention) " + \
-                " VALUES ({tg_user_id}, '{first_name}', '{last_name}', '{is_in_chat}', '{tg_mention}')" \
+            logging.info("ADD USER " + str(from_user.mention)) 
+            insert_user_query = "INSERT INTO users (tg_user_id, first_name, last_name, is_in_chat, tg_mention) " + \
+                " VALUES ({tg_user_id}, '{first_name}', '{last_name}', '{is_in_chat}', '{tg_mention}') ON CONFLICT DO NOTHING" \
                 .format(tg_user_id = self.from_user.id, \
                     first_name = self.from_user.first_name, \
                     last_name = self.from_user.last_name, \
@@ -56,14 +57,12 @@ class DBHelper:
                     tg_mention = self.from_user.mention)
             logging.info(str(insert_user_query)) 
             self.dbdriver.insert_query(insert_user_query)   
-            user_row = self.dbdriver.select_query(query=select_id_query, qtype='one')
+            user_row = self.dbdriver.select_query(query=select_id_query, qtype='all')
         else:
             logging.info("USER " + str(from_user.mention) + ", id=" + str(user_row[0]['id'])) 
             #TODO: проверку хеша и апдейт данных в базе
 
         #logging.info("USER IN DB WITH ID = " + str(user_row['id'])) 
-        logging.info(user_row) 
-
         return user_row
 
     ################# CONTACTS #################
@@ -87,7 +86,7 @@ class DBHelper:
 
         contact_query = None
         if crud == 'add':
-            contact_query = "INSERT OR REPLACE INTO contacts (tg_user_id, phone) VALUES ({tg_user_id}, '{phone}')" \
+            contact_query = "INSERT INTO contacts (tg_user_id, phone) VALUES ({tg_user_id}, '{phone}') ON CONFLICT DO NOTHING" \
                     .format(tg_user_id = self.from_user.id, phone = phone)
             logging.info(str(contact_query)) 
             self.dbdriver.insert_query(contact_query)   
@@ -145,7 +144,7 @@ class DBHelper:
 
         contact_query = None
         if crud == 'add':
-            contact_query = "INSERT OR REPLACE INTO park_mm (tg_user_id, park_mm) VALUES ({tg_user_id}, '{park_mm}')" \
+            contact_query = "INSERT INTO park_mm (tg_user_id, park_mm) VALUES ({tg_user_id}, '{park_mm}') ON CONFLICT DO NOTHING" \
                     .format(tg_user_id = self.from_user.id, park_mm = park_mm)
             logging.info(str(contact_query)) 
             self.dbdriver.insert_query(contact_query)   
@@ -202,7 +201,7 @@ class DBHelper:
 
         contact_query = None
         if crud == 'add':
-            contact_query = "INSERT OR REPLACE INTO cars (tg_user_id, car_number) VALUES ({tg_user_id}, '{car_number}')" \
+            contact_query = "INSERT INTO cars (tg_user_id, car_number) VALUES ({tg_user_id}, '{car_number}') ON CONFLICT DO NOTHING" \
                     .format(tg_user_id = self.from_user.id, car_number = car_number)
             logging.info(str(contact_query)) 
             self.dbdriver.insert_query(contact_query)   
@@ -283,6 +282,5 @@ class DBHelper:
                 dbdata['cars'] = cars_row
 
         logging.info(dbdata) 
-
         return dbdata
 
