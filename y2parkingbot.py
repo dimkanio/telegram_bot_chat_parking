@@ -455,6 +455,8 @@ async def shutdown(dispatcher: Dispatcher):
 
 ############################## INFO ####################################
 async def prepare_info_for_message(dataset, user=""):
+    if (user == ""):
+        user = "@******"
     message = f"Существующие данные {user}:\n\n".format(user)
     if dataset:
         for dtype in dataset:
