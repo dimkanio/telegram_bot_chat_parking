@@ -79,7 +79,6 @@ requests-kerberos==0.12.0
 requests-ntlm==1.1.0
 scour==0.38.2
 SecretStorage==3.3.1
-selinux==3.1
 simplejson==3.17.2
 six==1.15.0
 soupsieve==2.2
