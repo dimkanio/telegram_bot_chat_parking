@@ -63,7 +63,6 @@ PyQt5==5.15.4
 PyQt5-sip==12.8.1
 pyRFC3339==1.1
 pyTelegramBotAPI==4.1.1
-python-apt===2.2.0-ubuntu0.21.04.1
 python-dateutil==2.8.1
 python-debian==0.1.39
 python-telegram-bot==13.7
