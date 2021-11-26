@@ -45,7 +45,6 @@ ntlm-auth==1.4.0
 numpy==1.19.5
 oauthlib==3.1.0
 olefile==0.46
-openshot-qt==2.5.1
 packaging==20.9
 paramiko==2.7.2
 pexpect==4.8.0
