@@ -1,1 +1,1 @@
-web: python3 y2parkingbot.py
+worker: python3 y2parkingbot.py
