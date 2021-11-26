@@ -19,7 +19,6 @@ charset-normalizer==2.0.7
 click==7.1.2
 colorama==0.4.4
 cryptography==3.3.2
-cupshelpers==1.0
 cycler==0.10.0
 dbus-python==1.2.16
 defer==1.0.6
