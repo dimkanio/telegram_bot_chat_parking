@@ -46,13 +46,17 @@ async def process_start_command(message: types.Message):
             await bot.send_message(message.from_user.id, MESSAGES['need_invite'])
             return None
 
-        if message.chat.id == PARKING_CHAT_ID:
-            await bot.send_message(message.chat.id, "Нене, {} приходи в личку, в общем чатике не разговариваю!".format(message.from_user.mention))
+        if str(message.chat.id) == str(PARKING_CHAT_ID): 
+            await bot.send_message(message.chat.id, "Нене, {mn} приходи в личку, в общем чатике не разговариваю!".format(mn=message.from_user.mention))
             return None
         
     except Exception as e:
         logging.error(f"The error '{e}' occurred")   
         return None
+
+    if str(message.chat.id) == str(PARKING_CHAT_ID): 
+            await bot.send_message(message.chat.id, "Нене, {mn} приходи в личку, в общем чатике не разговариваю!".format(mn=message.from_user.mention))
+            return None
 
     db = DBHelper()
     db_usr = await db.check_user(message.from_user)
@@ -60,7 +64,7 @@ async def process_start_command(message: types.Message):
         await message.reply(MESSAGES['nlo'])
         return None
     del db
-
+    
     await TestStates.START_STATE.set()
     await message.reply(MESSAGES['start'], reply_markup=kb.meet_btn_markup)
 
@@ -292,7 +296,7 @@ async def process_callback_messages_btn(callback_query: types.CallbackQuery):
     await bot.send_message(callback_query.from_user.id, f"Выберите по какому признаку искать адресата:", reply_markup=kb.messages_types_btn_markup)
 
 @dp.message_handler(lambda msg: not (hasattr(msg, 'callback_data')), state = TestStates.SEND_MESSAGE_STATE)
-async def process_name_settings(message: types.Message, state: FSMContext):
+async def process_name_message_settings(message: types.Message, state: FSMContext):
     await message.reply("Нажимайте кнопки!")
 
 ###### MM ###########
