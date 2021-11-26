@@ -43,6 +43,7 @@ async def process_start_command(message: types.Message):
         if user_channel_status["status"] != 'left':
             logging.info("================= THIS IS OUR USER!=====================")
         else:
+            logging.info("================= UNNOWN USER!=====================")
             await bot.send_message(message.from_user.id, MESSAGES['need_invite'])
             return None
 
@@ -414,9 +415,9 @@ async def process_callback_messages_btn(callback_query: types.CallbackQuery):
     await bot.send_message(callback_query.from_user.id, f"В этом разделе пока ничего нет", reply_markup=kb.meet_btn_markup)
 
 ######################################################################
-@dp.message_handler()
-async def echo_message(msg: types.Message):
-    await bot.send_message(msg.from_user.id, msg.text)
+# @dp.message_handler()
+# async def echo_message(msg: types.Message):
+#     await bot.send_message(msg.from_user.id, msg.text)
 
 @dp.callback_query_handler(state = "*")
 async def process_callback_default(callback_query: types.CallbackQuery):
