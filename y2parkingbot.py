@@ -456,37 +456,39 @@ async def shutdown(dispatcher: Dispatcher):
 ############################## INFO ####################################
 async def prepare_info_for_message(dataset, user=""):
     message = f"Существующие данные {user}:\n\n".format(user)
-    for dtype in dataset:
-        #message += "" + dtype + ":\n"
-        for arrelem in dataset[dtype]:
-            for elem in arrelem:
-                if dtype == "contacts": 
-                    if elem == "phone":
-                        message += "📞 " + str(arrelem[elem]) + "\n"
-                if dtype == "park_mm": 
-                    if elem == "park_mm":
-                        message += "🅿️ " + str(arrelem[elem]) + "\n"
-                if dtype == "cars": 
-                    if elem == "car_number":
-                        message += "🚘 " + str(arrelem[elem]) + "\n"
+    if dataset:
+        for dtype in dataset:
+            #message += "" + dtype + ":\n"
+            for arrelem in dataset[dtype]:
+                for elem in arrelem:
+                    if dtype == "contacts": 
+                        if elem == "phone":
+                            message += "📞 " + str(arrelem[elem]) + "\n"
+                    if dtype == "park_mm": 
+                        if elem == "park_mm":
+                            message += "🅿️ " + str(arrelem[elem]) + "\n"
+                    if dtype == "cars": 
+                        if elem == "car_number":
+                            message += "🚘 " + str(arrelem[elem]) + "\n"
 
     return message
 
 async def prepare_tg_info_for_message(key, dataset):
     message = f"Контанты для {key}:\n\n".format(key)
     found = False
-    for dtype in dataset:
-        #message += "" + dtype + ":\n"
-        for arrelem in dataset[dtype]:
-            for elem in arrelem:
-                if dtype == "contacts": 
-                    if elem == "tg_mention":
-                        message += "▶️ " + str(arrelem[elem]) + "\n"
-                        found = True
+    if dataset:
+        for dtype in dataset:
+            #message += "" + dtype + ":\n"
+            for arrelem in dataset[dtype]:
+                for elem in arrelem:
+                    if dtype == "contacts": 
+                        if elem == "tg_mention":
+                            message += "▶️ " + str(arrelem[elem]) + "\n"
+                            found = True
     if not found:
         message += "Не найдено такой информации у бота."
     else:
-        message += "\nМожете написать напрямую, либо отправить сообщение анонимно через бота."
+        message += "\nМожете написать напрямую, либо отправить сообщение анонимно через бота. Анонимно бот умеет отправлять даже если у пользователя скрыт логин @login, но он зарегистрирован."
     return message
 
 def main():
