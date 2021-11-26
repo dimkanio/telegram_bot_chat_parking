@@ -483,7 +483,10 @@ async def prepare_tg_info_for_message(key, dataset):
                 for elem in arrelem:
                     if dtype == "contacts": 
                         if elem == "tg_mention":
-                            message += "▶️ " + str(arrelem[elem]) + "\n"
+                            if (str(arrelem[elem])) == 'None':
+                                message += "▶️ Скрыто настройками безопасности\n"
+                            else:
+                                message += "▶️ " + str(arrelem[elem]) + "\n"
                             found = True
     if not found:
         message += "Не найдено такой информации у бота."
