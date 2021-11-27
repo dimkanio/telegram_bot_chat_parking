@@ -25,11 +25,16 @@ class DBHelper:
     
     async def check_user(self, from_user: types.User):
 
-        logging.info("mention " + str(from_user.mention))
-
         if not from_user:
             logging.error("NO USER!")
             return None
+
+        logging.info("***check_user***")
+        logging.info(from_user) 
+
+        if getattr(from_user, 'mention') is None:
+            logging.info('hide user') 
+            from_user.mention = ""
 
         if from_user.is_bot:
             logging.error("THIS IS BOT!")
@@ -50,11 +55,11 @@ class DBHelper:
             logging.info("ADD USER " + str(from_user.mention)) 
             insert_user_query = "INSERT INTO users (tg_user_id, first_name, last_name, is_in_chat, tg_mention) " + \
                 " VALUES ({tg_user_id}, '{first_name}', '{last_name}', '{is_in_chat}', '{tg_mention}') ON CONFLICT DO NOTHING" \
-                .format(tg_user_id = self.from_user.id, \
-                    first_name = self.from_user.first_name, \
-                    last_name = self.from_user.last_name, \
+                .format(tg_user_id = from_user.id, \
+                    first_name = from_user.first_name, \
+                    last_name = from_user.last_name, \
                     is_in_chat = True, \
-                    tg_mention = self.from_user.mention)
+                    tg_mention = from_user.mention)
             logging.info(str(insert_user_query)) 
             self.dbdriver.insert_query(insert_user_query)   
             user_row = self.dbdriver.select_query(query=select_id_query, qtype='all')
