@@ -52,7 +52,6 @@ class DBHelper:
         logging.info(user_row) 
 
         if not user_row:
-            logging.info("ADD USER " + str(from_user.mention)) 
             insert_user_query = "INSERT INTO users (tg_user_id, first_name, last_name, is_in_chat, tg_mention) " + \
                 " VALUES ({tg_user_id}, '{first_name}', '{last_name}', '{is_in_chat}', '{tg_mention}') ON CONFLICT DO NOTHING" \
                 .format(tg_user_id = from_user.id, \
