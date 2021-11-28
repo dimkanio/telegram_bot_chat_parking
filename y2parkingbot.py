@@ -363,7 +363,8 @@ async def process_message_valid_mm_continue(message: types.Message):
         for tg_user in taddr.tg_ids['contacts']:
             logging.info(tg_user['tg_user_id'])
             db = DBHelper()
-            to_chat_id = await db.get_users_chat(tg_user['tg_user_id'])
+            #to_chat_id = await db.get_users_chat(tg_user['tg_user_id'])
+            to_chat_id = tg_user['tg_user_id']
             logging.info(to_chat_id)
             del db
             if to_chat_id:

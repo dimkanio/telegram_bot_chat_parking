@@ -70,12 +70,12 @@ class DBHelper:
             logging.info("USER " + str(from_user.mention) + ", id=" + str(user_row[0]['id'])) 
             #TODO: проверку хеша и апдейт данных в базе
             user_row = self.dbdriver.select_query(query=select_id_query, qtype='all')
-            if user_row[0]['tg_chat_id'] is None:
-                update_user_query = "UPDATE users SET tg_chat_id = {tg_chat_id} WHERE tg_user_id = {tg_user_id}" \
-                    .format(tg_chat_id = chat_id, tg_user_id = from_user.id)
-                logging.info(str(update_user_query)) 
-                self.dbdriver.update_query(update_user_query)   
-                user_row = self.dbdriver.select_query(query=select_id_query, qtype='all')
+            # if user_row[0]['tg_chat_id'] is None:
+            #     update_user_query = "UPDATE users SET tg_chat_id = {tg_chat_id} WHERE tg_user_id = {tg_user_id}" \
+            #         .format(tg_chat_id = chat_id, tg_user_id = from_user.id)
+            #     logging.info(str(update_user_query)) 
+            #     self.dbdriver.update_query(update_user_query)   
+            #     user_row = self.dbdriver.select_query(query=select_id_query, qtype='all')
 
         #logging.info("USER IN DB WITH ID = " + str(user_row['id'])) 
         return user_row
@@ -309,7 +309,7 @@ class DBHelper:
 
         user_row = self.dbdriver.select_query(query=select_id_query, qtype='all')
 
-        if isinstance(user_row['tg_chat_id']):
-            return user_row['tg_chat_id']
+        if isinstance(user_row[0]['tg_chat_id']):
+            return user_row[0]['tg_chat_id']
         else:
             return None
