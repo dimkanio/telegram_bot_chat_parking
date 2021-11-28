@@ -112,7 +112,7 @@ async def process_callback_settings_btn(callback_query: types.CallbackQuery):
     await bot.send_message(callback_query.from_user.id, f"Привет {callback_query.from_user.mention}, Какие данные будем добавлять/править? ", reply_markup=kb.settings_btn_markup)
     await TestStates.SETTINGS_STATE.set()
     db = DBHelper()
-    db_usr = await db.check_user(callback_query.from_user)
+    db_usr = await db.check_user(callback_query)
     contacts = await db.get_all_data(from_user=callback_query.from_user, datatype='all')
     del db
     info_message = await prepare_info_for_message(contacts, callback_query.from_user.mention)
@@ -294,7 +294,7 @@ async def process_callback_messages_btn(callback_query: types.CallbackQuery):
     await TestStates.SEND_MESSAGE_STATE.set()
     taddr.tg_ids = {}
     db = DBHelper()
-    db_usr = await db.check_user(callback_query.from_user)
+    db_usr = await db.check_user(callback_query)
     await bot.answer_callback_query(callback_query.id)
     await bot.send_message(callback_query.from_user.id, f"Выберите по какому признаку искать адресата:", reply_markup=kb.messages_types_btn_markup)
 
