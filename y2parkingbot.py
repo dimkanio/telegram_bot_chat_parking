@@ -368,7 +368,7 @@ async def process_message_valid_mm_continue(message: types.Message):
             logging.info(to_chat_id)
             del db
             if to_chat_id:
-                await bot.forward_message(to_chat_id, message.html_text, message.chat.id, message.message_id, False)
+                await bot.forward_message(to_chat_id, message.chat.id, message.message_id, False)
             else:
                 await bot.send_message(message.from_user.id, "Не могу переслать сообщение, не нашел чат с пользователем. Пробуйте анонимку.", reply_markup=kb.cancel_btn_markup)
         await message.reply(f"Переслал. Пишите еще или останавливайте пересылку.", reply_markup=kb.cancel_btn_markup)

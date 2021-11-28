@@ -253,7 +253,7 @@ class DBHelper:
         return dbdata    
 
     ############# all data ######################
-    async def get_all_data(self, tg_user_id: types.User, datatype = 'all'):
+    async def get_all_data(self, from_user: types.User, datatype = 'all'):
 
         tg_user_id = from_user.id
         logging.info("INFO FOR USER " + str(tg_user_id))
