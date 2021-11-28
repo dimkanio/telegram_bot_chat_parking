@@ -71,15 +71,8 @@ class DBHelper:
             #TODO: проверку хеша и апдейт данных в базе
             user_row = self.dbdriver.select_query(query=select_id_query, qtype='all')
             if user_row[0]['tg_chat_id'] is None:
-                update_user_query = "UPDATE users SET tg_user_id = {tg_user_id}, first_name = '{first_name}', last_name = '{last_name}', " + \
-                    " is_in_chat = '{is_in_chat}', tg_mention = '{tg_mention}', tg_chat_id = {tg_chat_id} WHERE tg_user_id = {tg_user_id}" \
-                    .format(tg_user_id = from_user.id, \
-                        first_name = from_user.first_name, \
-                        last_name = from_user.last_name, \
-                        is_in_chat = True, \
-                        tg_mention = from_user.mention, \
-                        tg_chat_id = chat_id
-                        )
+                update_user_query = "UPDATE users SET tg_chat_id = {tg_chat_id} WHERE tg_user_id = {tg_user_id}" \
+                    .format(tg_chat_id = chat_id, tg_user_id = from_user.id)
                 logging.info(str(update_user_query)) 
                 self.dbdriver.update_query(update_user_query)   
                 user_row = self.dbdriver.select_query(query=select_id_query, qtype='all')
