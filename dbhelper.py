@@ -8,7 +8,6 @@ from aiogram.types import chat
 from dbdriver import DBDriver
 from aiogram import Bot, types
 from aiogram.dispatcher import FSMContext
-from typing import Union
 
 class DBHelper:
 
@@ -26,9 +25,7 @@ class DBHelper:
         if self.dbdriver:
             del self.dbdriver
     
-    async def check_user(self, message: Union[types.Message, types.CallbackQuery]):
-
-        from_user = message.from_user
+    async def check_user(self, from_user: types.User, chat_id: int):
 
         if not from_user:
             logging.error("NO USER!")
@@ -64,7 +61,7 @@ class DBHelper:
                     last_name = from_user.last_name, \
                     is_in_chat = True, \
                     tg_mention = from_user.mention, \
-                    tg_chat_id = message.chat.id
+                    tg_chat_id = chat_id
                     )
             logging.info(str(insert_user_query)) 
             self.dbdriver.insert_query(insert_user_query)   
@@ -81,7 +78,7 @@ class DBHelper:
                         last_name = from_user.last_name, \
                         is_in_chat = True, \
                         tg_mention = from_user.mention, \
-                        tg_chat_id = message.chat.id
+                        tg_chat_id = chat_id
                         )
                 logging.info(str(update_user_query)) 
                 self.dbdriver.update_query(update_user_query)   
