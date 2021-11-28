@@ -8,6 +8,7 @@ from aiogram.types import chat
 from dbdriver import DBDriver
 from aiogram import Bot, types
 from aiogram.dispatcher import FSMContext
+from typing import Union
 
 class DBHelper:
 
@@ -25,7 +26,7 @@ class DBHelper:
         if self.dbdriver:
             del self.dbdriver
     
-    async def check_user(self, message):
+    async def check_user(self, message: Union[types.Message, types.CallbackQuery]):
 
         from_user = message.from_user
 
