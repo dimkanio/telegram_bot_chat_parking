@@ -35,17 +35,20 @@ CREATE TABLE park_mm (
                          id SERIAL PRIMARY KEY,
                          tg_user_id BIGINT NOT NULL,
                          park_mm INT,
-                         rent VARCHAR, UNIQUE (tg_user_id, park_mm)
+                         rent VARCHAR, 
+                         UNIQUE (tg_user_id, park_mm)
 );
 
 -- Таблица: users
 DROP TABLE IF EXISTS users;
 CREATE TABLE users (
                        id SERIAL PRIMARY KEY,
-                       tg_user_id BIGINT UNIQUE NOT NULL,
+                       tg_user_id BIGINT NOT NULL,
                        first_name VARCHAR (40),
                        last_name VARCHAR (40),
                        is_in_chat BOOLEAN DEFAULT FALSE,
-                       tg_mention VARCHAR (100)
+                       tg_mention VARCHAR (100),
+                       tg_chat_id BIGINT ,
+                       UNIQUE (tg_user_id)
 );
 

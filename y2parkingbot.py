@@ -59,7 +59,7 @@ async def process_start_command(message: types.Message):
             return None
 
     db = DBHelper()
-    db_usr = await db.check_user(message.from_user)
+    db_usr = await db.check_user(message)
     if not db_usr:
         await message.reply(MESSAGES['nlo'])
         return None
@@ -315,6 +315,7 @@ async def process_name_mm_not_valid(message: types.Message, state: FSMContext):
 
 @dp.message_handler(lambda msg: Valid.is_mm(msg.text), state = TestStates.SEND_MESSAGE_STATE_MM)
 async def process_message_valid_mm(message: types.Message, state: FSMContext):
+    await TestStates.DIALOG_MESSAGE_STATE.set()
     db = DBHelper()
     all_tg_ids = await db.get_users_mm(message.text)
     logging.info(all_tg_ids)
@@ -327,11 +328,15 @@ async def process_message_valid_mm(message: types.Message, state: FSMContext):
         await message.reply(info_message, reply_markup=kb.message_btn_markup)
     taddr.tg_ids = all_tg_ids
 
-@dp.callback_query_handler(lambda c: c.data == 'anonym_btn', state = TestStates.SEND_MESSAGE_STATE_MM)
+@dp.message_handler((lambda c: (c.data != 'anonym_btn') and (c.data != 'direct_btn') and (c.data != 'cancel_dialog')), state = TestStates.GET_DIALOG_MESSAGE_STATE)
+async def process_message_chose_valid_dialog(message: types.Message, state: FSMContext):
+    await message.reply(f"Выберите вариант общения или отмените!", reply_markup=kb.message_btn_markup)
+
+@dp.callback_query_handler(lambda c: c.data == 'anonym_btn', state = TestStates.DIALOG_MESSAGE_STATE)
 async def process_callback_mm_message_btn_send(callback_query: types.CallbackQuery):
     await TestStates.SEND_MESSAGE_STATE_MM_CNT.set()
     await bot.answer_callback_query(callback_query.id)
-    await bot.send_message(callback_query.from_user.id, f"Введите текст:")
+    await bot.send_message(callback_query.from_user.id, f"Введите текст анонимного сообщения:")
 
 @dp.message_handler(state = TestStates.SEND_MESSAGE_STATE_MM_CNT)
 async def process_message_valid_mm_continue(message: types.Message):
@@ -339,10 +344,34 @@ async def process_message_valid_mm_continue(message: types.Message):
     if taddr.tg_ids:
         for tg_user in taddr.tg_ids['contacts']:
             logging.info(tg_user['tg_user_id'])
-            await bot.send_message(tg_user['tg_user_id'], f"🥷 Вам анонимное сообщение:\n\n" + message.text)       
+            await bot.send_message(tg_user['tg_user_id'], f"🕶 Вам анонимное сообщение:\n\n" + message.text)       
         await message.reply(f"Передал. Пишите еще или останавливайте пересылку.", reply_markup=kb.cancel_btn_markup)
     else:
-        await bot.send_message(message.from_user.id, "Не удалось отправить!", reply_markup=kb.cancel_btn_markup)
+        await bot.send_message(message.from_user.id, "Не удалось отправить! Не найдены контакты.", reply_markup=kb.cancel_btn_markup)
+
+@dp.callback_query_handler(lambda c: c.data == 'direct_btn', state = TestStates.DIALOG_MESSAGE_STATE)
+async def process_callback_mm_message_btn_send_direct(callback_query: types.CallbackQuery):
+    await TestStates.SEND_MESSAGE_STATE_MM_CNT_DIRECT.set()
+    await bot.answer_callback_query(callback_query.id)
+    await bot.send_message(callback_query.from_user.id, f"Введите текст сообщения (перешлю от вашего имени):")
+
+@dp.message_handler(state = TestStates.SEND_MESSAGE_STATE_MM_CNT_DIRECT)
+async def process_message_valid_mm_continue(message: types.Message):
+
+    if taddr.tg_ids:
+        for tg_user in taddr.tg_ids['contacts']:
+            logging.info(tg_user['tg_user_id'])
+            db = DBHelper()
+            to_chat_id = await db.get_users_chat(tg_user['tg_user_id'])
+            logging.info(to_chat_id)
+            del db
+            if to_chat_id:
+                await bot.forward_message(to_chat_id, message.html_text, message.chat.id, message.message_id, False)
+            else:
+                await bot.send_message(message.from_user.id, "Не могу переслать сообщение, не нашел чат с пользователем. Пробуйте анонимку.", reply_markup=kb.cancel_btn_markup)
+        await message.reply(f"Переслал. Пишите еще или останавливайте пересылку.", reply_markup=kb.cancel_btn_markup)
+    else:
+        await bot.send_message(message.from_user.id, "Не удалось отправить! Не найдены контакты.", reply_markup=kb.cancel_btn_markup)
 
 @dp.callback_query_handler(lambda c: c.data == 'cancel_dialog', state='*')
 async def process_callback_cancel_dialog_btn(callback_query: types.CallbackQuery):

@@ -24,8 +24,11 @@ class TestStates(StatesGroup):
     SEND_MESSAGE_STATE_AU = State()
     SEND_MESSAGE_STATE_MY = State()
     SEND_MESSAGE_STATE_MM_CNT = State()
+    SEND_MESSAGE_STATE_MM_CNT_DIRECT = State()
     SEND_MESSAGE_STATE_AU_CNT = State()
     SEND_MESSAGE_STATE_MY_CNT = State()
+    GET_DIALOG_MESSAGE_STATE = State()
+    DIALOG_MESSAGE_STATE = State()
     INFO_STATE = State()
 
 # if __name__ == '__main__':

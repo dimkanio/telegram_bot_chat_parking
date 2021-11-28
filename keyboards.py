@@ -17,8 +17,9 @@ home_btn_markup = InlineKeyboardMarkup().add(cancel_btn)
 cancel_dialog = InlineKeyboardButton('❌ Остановить пересылку сообщений', callback_data='cancel_dialog')
 cancel_btn_markup = InlineKeyboardMarkup().add(cancel_dialog)
 
-anonym_btn = InlineKeyboardButton('🥷 Отправить анонимно', callback_data='anonym_btn')
-message_btn_markup = InlineKeyboardMarkup().add(anonym_btn).add(cancel_dialog)
+anonym_btn = InlineKeyboardButton('🕶 Отправить анонимно', callback_data='anonym_btn')
+direct_btn = InlineKeyboardButton('👓 Отправить в директ (сообщения будут пересылаться)', callback_data='direct_btn')
+message_btn_markup = InlineKeyboardMarkup().add(anonym_btn).add(direct_btn).add(cancel_dialog)
 
 ############################## SETTINGS BTNS ################################
 mm_settings_btn = InlineKeyboardButton('🅿️ Добавить/Изменить машиноместа', callback_data='mm_settings_btn')

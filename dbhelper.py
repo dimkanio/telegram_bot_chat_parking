@@ -3,6 +3,8 @@
 # -*- coding: UTF-8 -*-
 
 import logging
+
+from aiogram.types import chat
 from dbdriver import DBDriver
 from aiogram import Bot, types
 from aiogram.dispatcher import FSMContext
@@ -23,7 +25,9 @@ class DBHelper:
         if self.dbdriver:
             del self.dbdriver
     
-    async def check_user(self, from_user: types.User):
+    async def check_user(self, message: types.Message):
+
+        from_user = message.from_user
 
         if not from_user:
             logging.error("NO USER!")
@@ -52,19 +56,35 @@ class DBHelper:
         logging.info(user_row) 
 
         if not user_row:
-            insert_user_query = "INSERT INTO users (tg_user_id, first_name, last_name, is_in_chat, tg_mention) " + \
-                " VALUES ({tg_user_id}, '{first_name}', '{last_name}', '{is_in_chat}', '{tg_mention}') ON CONFLICT DO NOTHING" \
+            insert_user_query = "INSERT INTO users (tg_user_id, first_name, last_name, is_in_chat, tg_mention, tg_chat_id) " + \
+                " VALUES ({tg_user_id}, '{first_name}', '{last_name}', '{is_in_chat}', '{tg_mention}', {tg_chat_id}) ON CONFLICT DO NOTHING" \
                 .format(tg_user_id = from_user.id, \
                     first_name = from_user.first_name, \
                     last_name = from_user.last_name, \
                     is_in_chat = True, \
-                    tg_mention = from_user.mention)
+                    tg_mention = from_user.mention, \
+                    tg_chat_id = message.chat.id
+                    )
             logging.info(str(insert_user_query)) 
             self.dbdriver.insert_query(insert_user_query)   
             user_row = self.dbdriver.select_query(query=select_id_query, qtype='all')
         else:
             logging.info("USER " + str(from_user.mention) + ", id=" + str(user_row[0]['id'])) 
             #TODO: проверку хеша и апдейт данных в базе
+            user_row = self.dbdriver.select_query(query=select_id_query, qtype='all')
+            if not user_row['tg_chat_id']:
+                update_user_query = "UPDATE users SET tg_user_id = {tg_user_id}, first_name = '{first_name}', last_name = '{last_name}', " + \
+                    " is_in_chat = '{is_in_chat}', tg_mention = '{tg_mention}', tg_chat_id = {tg_chat_id} WHERE tg_user_id = {tg_user_id}" \
+                    .format(tg_user_id = from_user.id, \
+                        first_name = from_user.first_name, \
+                        last_name = from_user.last_name, \
+                        is_in_chat = True, \
+                        tg_mention = from_user.mention, \
+                        tg_chat_id = message.chat.id
+                        )
+                logging.info(str(update_user_query)) 
+                self.dbdriver.update_query(update_user_query)   
+                user_row = self.dbdriver.select_query(query=select_id_query, qtype='all')
 
         #logging.info("USER IN DB WITH ID = " + str(user_row['id'])) 
         return user_row
@@ -242,7 +262,7 @@ class DBHelper:
         return dbdata    
 
     ############# all data ######################
-    async def get_all_data(self, from_user: types.User, datatype = 'all'):
+    async def get_all_data(self, tg_user_id: types.User, datatype = 'all'):
 
         tg_user_id = from_user.id
         logging.info("INFO FOR USER " + str(tg_user_id))
@@ -288,3 +308,17 @@ class DBHelper:
         logging.info(dbdata) 
         return dbdata
 
+    async def get_users_chat(self, tg_user_id):
+
+        if not self.dbdriver:
+            logging.error("DB DRIVER IS NOT FOUND!")
+            return None
+
+        select_id_query = "SELECT tg_chat_id FROM users WHERE tg_user_id = {tg_user_id}".format(tg_user_id = tg_user_id)
+
+        user_row = self.dbdriver.select_query(query=select_id_query, qtype='all')
+
+        if isinstance(user_row['tg_chat_id']):
+            return user_row['tg_chat_id']
+        else:
+            return None
