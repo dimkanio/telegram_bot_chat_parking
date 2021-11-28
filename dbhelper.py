@@ -25,7 +25,7 @@ class DBHelper:
         if self.dbdriver:
             del self.dbdriver
     
-    async def check_user(self, message: types.Message):
+    async def check_user(self, message):
 
         from_user = message.from_user
 
