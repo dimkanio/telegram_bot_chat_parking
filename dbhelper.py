@@ -409,7 +409,7 @@ class DBHelper:
                     chat_type = chat_type, dialog_state = dialog_state, dt_string = dt_string, message = message_text)
         logging.info(dialog_from_query)
         self.dbdriver.insert_query(dialog_from_query)   
-        dialog_state = await self.get_dialog_state(from_tg_user_id: int, to_tg_user_id: int)
+        dialog_state = await self.get_dialog_state(from_tg_user_id, to_tg_user_id)
         return dialog_state
 
     async def get_dialog_state(self, from_tg_user_id: int, to_tg_user_id: int):
