@@ -6,6 +6,7 @@ import logging
 from aiogram import Bot, types
 from aiogram.dispatcher import Dispatcher
 from aiogram.dispatcher import FSMContext
+from aiogram.dispatcher.filters import state
 from aiogram.types import User
 from aiogram.types import message
 from aiogram.utils import executor
@@ -316,7 +317,7 @@ async def process_name_mm_not_valid(message: types.Message, state: FSMContext):
 
 @dp.message_handler(lambda msg: Valid.is_mm(msg.text), state = TestStates.SEND_MESSAGE_STATE_MM)
 async def process_message_valid_mm(message: types.Message, state: FSMContext):
-    await TestStates.DIALOG_MESSAGE_STATE.set()
+    await TestStates.GET_DIALOG_MESSAGE_STATE.set()
     db = DBHelper()
     all_tg_ids = await db.get_users_mm(message.text)
     logging.info(all_tg_ids)
@@ -329,18 +330,19 @@ async def process_message_valid_mm(message: types.Message, state: FSMContext):
         await message.reply(info_message, reply_markup=kb.message_btn_markup)
     taddr.tg_ids = all_tg_ids
 
+#COMMON
 @dp.message_handler((lambda c: (c.data != 'anonym_btn') and (c.data != 'direct_btn') and (c.data != 'cancel_dialog')), state = TestStates.GET_DIALOG_MESSAGE_STATE)
 async def process_message_chose_valid_dialog(message: types.Message, state: FSMContext):
     await message.reply(f"Выберите вариант общения или отмените!", reply_markup=kb.message_btn_markup)
 
-@dp.callback_query_handler(lambda c: c.data == 'anonym_btn', state = TestStates.DIALOG_MESSAGE_STATE)
-async def process_callback_mm_message_btn_send(callback_query: types.CallbackQuery):
-    await TestStates.SEND_MESSAGE_STATE_MM_CNT.set()
+@dp.callback_query_handler(lambda c: c.data == 'anonym_btn', state = TestStates.GET_DIALOG_MESSAGE_STATE) #COMMON
+async def process_callback_anonim_message_btn_send(callback_query: types.CallbackQuery):
+    await TestStates.DIALOG_MESSAGE_STATE.set()
     await bot.answer_callback_query(callback_query.id)
     await bot.send_message(callback_query.from_user.id, f"Введите текст анонимного сообщения:")
 
-@dp.message_handler(state = TestStates.SEND_MESSAGE_STATE_MM_CNT)
-async def process_message_valid_mm_continue(message: types.Message):
+@dp.message_handler(state = TestStates.DIALOG_MESSAGE_STATE) #COMMON
+async def process_message_valid_anon_continue(message: types.Message):
 
     if taddr.tg_ids:
         for tg_user in taddr.tg_ids['contacts']:
@@ -350,17 +352,17 @@ async def process_message_valid_mm_continue(message: types.Message):
     else:
         await bot.send_message(message.from_user.id, "Не удалось отправить! Не найдены контакты.", reply_markup=kb.cancel_btn_markup)
 
-@dp.callback_query_handler(lambda c: c.data == 'direct_btn', state = TestStates.DIALOG_MESSAGE_STATE)
-async def process_callback_mm_message_btn_send_direct(callback_query: types.CallbackQuery):
-    await TestStates.SEND_MESSAGE_STATE_MM_CNT_DIRECT.set()
+@dp.callback_query_handler(lambda c: c.data == 'direct_btn', state = TestStates.GET_DIALOG_MESSAGE_STATE) #COMMON
+async def process_callback_forward_message_btn_send_direct(callback_query: types.CallbackQuery):
+    await TestStates.DIALOG_MESSAGE_STATE_FORWARD.set()
     await bot.answer_callback_query(callback_query.id)
     await bot.send_message(callback_query.from_user.id, f"Введите текст сообщения (перешлю от вашего имени):")
 
-@dp.message_handler(state = TestStates.SEND_MESSAGE_STATE_MM_CNT_DIRECT)
-async def process_message_valid_mm_continue(message: types.Message):
+@dp.message_handler(state = TestStates.DIALOG_MESSAGE_STATE_FORWARD)   #COMMON
+async def process_message_valid_direct_continue(message: types.Message):
 
     if taddr.tg_ids:
-        for tg_user in taddr.tg_ids['contacts']:
+        for tg_user in taddr.tg_ids['contacts']: 
             logging.info(tg_user['tg_user_id'])
             db = DBHelper()
             #to_chat_id = await db.get_users_chat(tg_user['tg_user_id'])
@@ -395,6 +397,7 @@ async def process_name_au_message_not_valid(message: types.Message, state: FSMCo
 
 @dp.message_handler(lambda msg: Valid.is_auto(msg.text), state = TestStates.SEND_MESSAGE_STATE_AU)
 async def process_message_valid_mm(message: types.Message, state: FSMContext):
+    await TestStates.GET_DIALOG_MESSAGE_STATE.set()
     db = DBHelper()
     all_tg_ids = await db.get_users_auto(Valid.cyrillic2latin(message.text))
     logging.info(all_tg_ids)
@@ -406,23 +409,6 @@ async def process_message_valid_mm(message: types.Message, state: FSMContext):
     else:
         await message.reply(info_message, reply_markup=kb.message_btn_markup)
     taddr.tg_ids = all_tg_ids
-
-@dp.callback_query_handler(lambda c: c.data == 'anonym_btn', state = TestStates.SEND_MESSAGE_STATE_AU)
-async def process_callback_auto_message_btn_send(callback_query: types.CallbackQuery):
-    await TestStates.SEND_MESSAGE_STATE_AU_CNT.set()
-    await bot.answer_callback_query(callback_query.id)
-    await bot.send_message(callback_query.from_user.id, f"Введите текст:")
-
-@dp.message_handler(state = TestStates.SEND_MESSAGE_STATE_AU_CNT)
-async def process_message_valid_auto_continue(message: types.Message):
-
-    if taddr.tg_ids:
-        for tg_user in taddr.tg_ids['contacts']:
-            logging.info(tg_user['tg_user_id'])
-            await bot.send_message(tg_user['tg_user_id'], f"🥷 Вам анонимное сообщение:\n\n" + message.text)       
-        await message.reply(f"Передал. Пишите еще или останавливайте пересылку.", reply_markup=kb.cancel_btn_markup)
-    else:
-        await bot.send_message(message.from_user.id, "Не удалось отправить!", reply_markup=kb.cancel_btn_markup)
 
 ###### PHONE ###########
 @dp.callback_query_handler(lambda c: c.data == 'phone_message_btn', state = TestStates.SEND_MESSAGE_STATE)
@@ -437,6 +423,7 @@ async def process_name_phone_not_valid(message: types.Message, state: FSMContext
 
 @dp.message_handler(lambda msg: Valid.is_phone(msg.text), state = TestStates.SEND_MESSAGE_STATE_MY)
 async def process_message_valid_phone(message: types.Message, state: FSMContext):
+    await TestStates.GET_DIALOG_MESSAGE_STATE.set()
     db = DBHelper()
     all_tg_ids = await db.get_users_phone(message.text)
     logging.info(all_tg_ids)
@@ -449,29 +436,27 @@ async def process_message_valid_phone(message: types.Message, state: FSMContext)
         await message.reply(info_message, reply_markup=kb.message_btn_markup)
     taddr.tg_ids = all_tg_ids
 
-@dp.callback_query_handler(lambda c: c.data == 'anonym_btn', state = TestStates.SEND_MESSAGE_STATE_MY)
-async def process_callback_auto_message_btn_send(callback_query: types.CallbackQuery):
-    await TestStates.SEND_MESSAGE_STATE_AU_CNT.set()
-    await bot.answer_callback_query(callback_query.id)
-    await bot.send_message(callback_query.from_user.id, f"Введите текст:")
-
-@dp.message_handler(state = TestStates.SEND_MESSAGE_STATE_AU_CNT)
-async def process_message_valid_phone_continue(message: types.Message):
-
-    if taddr.tg_ids:
-        for tg_user in taddr.tg_ids['contacts']:
-            logging.info(tg_user['tg_user_id'])
-            await bot.send_message(tg_user['tg_user_id'], f"🥷 Вам анонимное сообщение:\n\n" + message.text)       
-        await message.reply(f"Передал. Пишите еще или останавливайте пересылку.", reply_markup=kb.cancel_btn_markup)
-    else:
-        await bot.send_message(message.from_user.id, "Не удалось отправить!", reply_markup=kb.cancel_btn_markup)
-
 ############################## INFO ################################
 @dp.callback_query_handler(lambda c: c.data == 'info_btn', state='*')
 async def process_callback_messages_btn(callback_query: types.CallbackQuery):
     await TestStates.INFO_STATE.set()
     await bot.answer_callback_query(callback_query.id)
-    await bot.send_message(callback_query.from_user.id, f"В этом разделе пока ничего нет", reply_markup=kb.meet_btn_markup)
+    await bot.send_message(callback_query.from_user.id, f"Выберите вид статистики:", reply_markup=kb.common_btn_markup)
+
+@dp.callback_query_handler(lambda c: c.data == 'common_cntrs_btn', state = TestStates.INFO_STATE)
+async def process_callback_auto_message_btn(callback_query: types.CallbackQuery):
+    await bot.answer_callback_query(callback_query.id)
+    db = DBHelper()
+    db_info = await db.get_common_data()
+    logging.info(db_info)
+    info_message = await prepare_common_info_for_message(db_info)
+    del db
+
+    await bot.send_message(callback_query.from_user.id, info_message, reply_markup=kb.common_btn_markup)
+
+@dp.message_handler(lambda msg: not (hasattr(msg, 'callback_data')), state = TestStates.INFO_STATE)
+async def process_name_start(message: types.Message, state: FSMContext):
+    await message.reply("Выберите пункт меню!")
 
 ######################################################################
 # @dp.message_handler()
@@ -506,6 +491,28 @@ async def prepare_info_for_message(dataset, user=""):
                     if dtype == "cars": 
                         if elem == "car_number":
                             message += "🚘 " + str(arrelem[elem]) + "\n"
+
+    return message
+
+async def prepare_common_info_for_message(dataset):
+    message = f"Всего зарегистрировано у бота:"
+    if dataset:
+        for dtype in dataset:
+            #message += "" + dtype + ":\n"
+            for arrelem in dataset[dtype]:
+                for elem in arrelem:
+                    if dtype == "users": 
+                        if elem == "CNT":
+                            message += "🙍🏼‍♂️ " + str(arrelem[elem]) + " пользователей\n"
+                    if dtype == "contacts": 
+                        if elem == "CNT":
+                            message += "📞 " + str(arrelem[elem]) + " номеров\n"
+                    if dtype == "park_mm": 
+                        if elem == "CNT":
+                            message += "🅿️ " + str(arrelem[elem]) + " мест\n"
+                    if dtype == "cars": 
+                        if elem == "CNT":
+                            message += "🚘 " + str(arrelem[elem]) + " автомобильных номеров\n"
 
     return message
 

@@ -26,10 +26,14 @@ class TestStates(StatesGroup):
     SEND_MESSAGE_STATE_MM_CNT = State()
     SEND_MESSAGE_STATE_MM_CNT_DIRECT = State()
     SEND_MESSAGE_STATE_AU_CNT = State()
+    SEND_MESSAGE_STATE_AU_CNT_DIRECT = State()
     SEND_MESSAGE_STATE_MY_CNT = State()
+    SEND_MESSAGE_STATE_MY_CNT_DIRECT = State()
     GET_DIALOG_MESSAGE_STATE = State()
     DIALOG_MESSAGE_STATE = State()
+    DIALOG_MESSAGE_STATE_FORWARD = State()
     INFO_STATE = State()
+    INFO_STATE_COUNTERS = State()
 
 # if __name__ == '__main__':
 #     print(TestStates.all())

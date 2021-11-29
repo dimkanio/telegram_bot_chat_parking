@@ -313,3 +313,48 @@ class DBHelper:
             return user_row[0]['tg_chat_id']
         else:
             return None
+
+    async def get_common_data(self, datatype = 'all'):
+
+        logging.info("GET INFO " + str(datatype))
+
+        dbdata = dict()
+
+        if not self.dbdriver:
+            logging.error("DB DRIVER IS NOT FOUND!")
+            return None
+
+        if datatype in ['users','all']:
+            select_user_count_query = "SELECT COUNT(*) as CNT FROM users "
+            user_cnt_row = self.dbdriver.select_query(query=select_user_count_query, qtype='one')
+
+            if not user_cnt_row:
+                logging.error("Cannot fetch data") 
+                return None
+                
+            logging.info(user_cnt_row) 
+            dbdata['users'] = user_cnt_row
+
+        if datatype in ['contacts','all']: 
+
+                select_contacts_cnt_query = "SELECT COUNT(*) as CNT FROM contacts"
+                contacts_cnt_row = self.dbdriver.select_query(query=select_contacts_cnt_query, qtype='one')
+                logging.info(contacts_cnt_row) 
+                dbdata['contacts'] = contacts_cnt_row
+
+        if datatype in ['park_mm','all']: 
+
+                select_park_mm_cnt_query = "SELECT COUNT(*) as CNT FROM park_mm "
+                park_mm_cnt_row = self.dbdriver.select_query(query=select_park_mm_cnt_query, qtype='all')
+                logging.info(park_mm_cnt_row) 
+                dbdata['park_mm'] = park_mm_cnt_row
+
+        if datatype in ['cars','all']: 
+
+                select_cars_cnt_query = "SELECT COUNT(*) as CNT FROM cars "
+                cars_cnt_row = self.dbdriver.select_query(query=select_cars_cnt_query, qtype='all')
+                logging.info(cars_cnt_row) 
+                dbdata['cars'] = cars_cnt_row
+
+        logging.info(dbdata) 
+        return dbdata
