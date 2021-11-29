@@ -18,7 +18,7 @@ cancel_dialog = InlineKeyboardButton('❌ Остановить пересылк�
 cancel_btn_markup = InlineKeyboardMarkup().add(cancel_dialog)
 
 anonym_btn = InlineKeyboardButton('🕶 Отправить анонимно', callback_data='anonym_btn')
-direct_btn = InlineKeyboardButton('👓 Отправить в директ (сообщения будут пересылаться)', callback_data='direct_btn')
+direct_btn = InlineKeyboardButton('👓 Переслать от моего имени', callback_data='direct_btn')
 message_btn_markup = InlineKeyboardMarkup().add(anonym_btn).add(direct_btn).add(cancel_dialog)
 
 ############################## SETTINGS BTNS ################################
