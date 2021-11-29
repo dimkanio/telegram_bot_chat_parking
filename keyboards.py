@@ -21,6 +21,10 @@ anonym_btn = InlineKeyboardButton('🕶 Отправить анонимно', ca
 direct_btn = InlineKeyboardButton('👓 Переслать от моего имени', callback_data='direct_btn')
 message_btn_markup = InlineKeyboardMarkup().add(anonym_btn).add(direct_btn).add(cancel_dialog)
 
+reply_anon_btn = InlineKeyboardButton('🕶 Ответить анонимно', callback_data='reply_anonym_btn')
+reply_direct_btn = InlineKeyboardButton('🕶 Ответить', callback_data='reply_direct_btn')
+message_direct_dialog_btn_markup = InlineKeyboardMarkup().add(reply_direct_btn).add(cancel_dialog)
+
 ############################## SETTINGS BTNS ################################
 mm_settings_btn = InlineKeyboardButton('🅿️ Добавить/Изменить машиноместа', callback_data='mm_settings_btn')
 auto_settings_btn = InlineKeyboardButton('🚗 Добавить/Изменить автомобили', callback_data='auto_settings_btn')

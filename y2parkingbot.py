@@ -368,11 +368,16 @@ async def process_message_valid_direct_continue(message: types.Message):
             #to_chat_id = await db.get_users_chat(tg_user['tg_user_id'])
             to_chat_id = tg_user['tg_user_id']
             logging.info(to_chat_id)
-            del db
+            
             if to_chat_id:
                 await bot.forward_message(to_chat_id, message.chat.id, message.message_id, False)
+
+                await bot.send_message(to_chat_id, f"Ответить?", reply_markup=kb.message_direct_dialog_btn_markup)
+                dialog_state = await db.change_dialog(message.chat.id, to_chat_id, 'direct', "OPEN", "from " + message.from_user.mention)
             else:
                 await bot.send_message(message.from_user.id, "Не могу переслать сообщение, не нашел чат с пользователем. Пробуйте анонимку.", reply_markup=kb.cancel_btn_markup)
+            del db
+
         await message.reply(f"Переслал. Пишите еще или останавливайте пересылку.", reply_markup=kb.cancel_btn_markup)
     else:
         await bot.send_message(message.from_user.id, "Не удалось отправить! Не найдены контакты.", reply_markup=kb.cancel_btn_markup)
@@ -380,9 +385,21 @@ async def process_message_valid_direct_continue(message: types.Message):
 @dp.callback_query_handler(lambda c: c.data == 'cancel_dialog', state='*')
 async def process_callback_cancel_dialog_btn(callback_query: types.CallbackQuery):
     await TestStates.SEND_MESSAGE_STATE.set()
-    taddr.tg_ids = {}
     await bot.answer_callback_query(callback_query.id)
     await bot.send_message(callback_query.from_user.id, f"Выберите как искать адресата:", reply_markup=kb.messages_types_btn_markup)
+    if taddr.tg_ids:
+        for tg_user in taddr.tg_ids['contacts']: 
+            logging.info(tg_user['tg_user_id'])
+            db = DBHelper()
+            to_chat_id = tg_user['tg_user_id']
+            dialog_state = await db.change_dialog(callback_query.message.chat.id, to_chat_id, 'cancel', "CLOSED", "close " + callback_query.from_user.mention)
+            del db
+    taddr.tg_ids = {}
+
+@dp.callback_query_handler(lambda c: c.data == 'reply_direct_btn', state = "*") #COMMON
+async def process_callback_anonim_message_btn_send(callback_query: types.CallbackQuery):
+    await TestStates.DIALOG_MESSAGE_STATE_FORWARD.set()
+    await bot.answer_callback_query(callback_query.id, f"Перевожу в режим диалога. Пишите ответ:")
 
 ###### AUTO ###########
 @dp.callback_query_handler(lambda c: c.data == 'auto_message_btn', state = TestStates.SEND_MESSAGE_STATE)

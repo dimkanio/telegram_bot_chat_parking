@@ -23,10 +23,11 @@ CREATE TABLE messages (
                           id SERIAL PRIMARY KEY,
                           from_tg_user_id BIGINT NOT NULL,
                           to_tg_user_id BIGINT,
-                          to_mm INT,
-                          to_car VARCHAR,
-                          to_phone VARCHAR,
-                          message TEXT
+                          hex_dig UUID,
+                          chat_type VARCHAR,
+                          dialog_state VARCHAR,
+                          message TEXT,
+                          UNIQUE (hex_dig)
 );
 
 -- Таблица: park_mm

@@ -8,6 +8,8 @@ from aiogram.types import chat
 from dbdriver import DBDriver
 from aiogram import Bot, types
 from aiogram.dispatcher import FSMContext
+import hashlib
+from datetime import datetime
 
 class DBHelper:
 
@@ -358,3 +360,76 @@ class DBHelper:
 
         logging.info(dbdata) 
         return dbdata
+
+    ############# messages ######################
+    async def change_dialog(self, from_tg_user_id: int, to_tg_user_id: int,
+                    chat_type: str, dialog_state: str, message_text = ""):
+
+        logging.info("change_dialog " + str(from_tg_user_id) + " <-> " + str(to_tg_user_id) + " (" + chat_type + ":" + dialog_state + ")")
+
+        if not self.dbdriver:
+            logging.error("DB DRIVER IS NOT FOUND!")
+            return None
+
+        select_from_id_query = "SELECT tg_user_id FROM users WHERE tg_user_id = {id}".format(id = from_tg_user_id)
+        logging.info("FIND FROM USER: " + str(select_from_id_query)) 
+        user_from_row = self.dbdriver.select_query(query=select_from_id_query, qtype='one')
+        logging.info(user_from_row) 
+
+        if not user_from_row:
+            logging.error("NO FROM USER!")
+            return None
+
+        select_to_id_query = "SELECT tg_user_id FROM users WHERE tg_user_id = {id}".format(id = from_tg_user_id)
+        logging.info("FIND TO USER: " + str(select_to_id_query)) 
+        user_to_row = self.dbdriver.select_query(query=select_to_id_query, qtype='one')
+        logging.info(user_to_row) 
+
+        if not user_to_row:
+            logging.error("NO TO USER!")
+            return None
+
+        hash_object = hashlib.sha1(str(from_tg_user_id + to_tg_user_id))
+        hex_dig = hash_object.hexdigest()
+
+        now = datetime.now()
+        dt_string = now.strftime("%d/%m/%Y %H:%M:%S")
+
+        dialog_from_query = "INSERT INTO messages (from_tg_user_id, to_tg_user_id, chat_type, dialog_state, message)" + \
+            " VALUES ({from_tg_user_id}, {to_tg_user_id}, '{hex_dig}', '{chat_type}', '{dialog_state}', '{message}') " + \
+            " ON CONFLICT (hex_dig) " + \
+            " DO UPDATE " + \
+            " SET from_tg_user_id = {from_tg_user_id}, " + \
+            "    to_tg_user_id = {to_tg_user_id}, " + \
+            "    hex_dig = '{hex_dig}', " + \
+            "    chat_type = '{chat_type}', " + \
+            "    dialog_state = '{dialog_state}', " + \
+            "    message = CONCAT(message, '=>{dt_string}::', '{message}') " \
+                .format(from_tg_user_id = from_tg_user_id, to_tg_user_id = to_tg_user_id, \
+                    chat_type = chat_type, dialog_state = dialog_state, dt_string = dt_string, message = message_text)
+        logging.info(dialog_from_query)
+        self.dbdriver.insert_query(dialog_from_query)   
+        dialog_state = await self.get_dialog_state(from_tg_user_id: int, to_tg_user_id: int)
+        return dialog_state
+
+    async def get_dialog_state(self, from_tg_user_id: int, to_tg_user_id: int):
+
+        hash_object = hashlib.sha1(str(from_tg_user_id + to_tg_user_id))
+        hex_dig = hash_object.hexdigest()
+        logging.info("get_dialog_state " + str(hex_dig))       
+
+        if not self.dbdriver:
+            logging.error("DB DRIVER IS NOT FOUND!")
+            return None
+
+        select_hex_dig_query = "SELECT dialog_state FROM messages WHERE hex_dig = {hex_dig}".format(hex_dig = hex_dig)
+        logging.info("hex_dig_row: " + str(select_hex_dig_query)) 
+        hex_dig_row = self.dbdriver.select_query(query=select_hex_dig_query, qtype='one')
+        logging.info(hex_dig_row) 
+
+        if not hex_dig_row:
+            logging.error("NO hex_dig found!")
+            return None
+
+        return hex_dig_row[0]['dialog_state']
+
