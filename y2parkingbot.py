@@ -400,7 +400,7 @@ async def process_callback_cancel_dialog_btn(callback_query: types.CallbackQuery
 async def process_callback_anonim_message_btn_send(callback_query: types.CallbackQuery):
     await TestStates.DIALOG_MESSAGE_STATE_FORWARD.set()
     await bot.answer_callback_query(callback_query.id)
-    await bot.send_message(callback_query.message.from_user.id, f"Перевожу в режим диалога. Пишите ответ:")
+    await bot.send_message(callback_query.from_user.id, f"Пишите ответ:")
 
 ###### AUTO ###########
 @dp.callback_query_handler(lambda c: c.data == 'auto_message_btn', state = TestStates.SEND_MESSAGE_STATE)

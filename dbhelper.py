@@ -395,7 +395,7 @@ class DBHelper:
         now = datetime.now()
         dt_string = now.strftime("%d/%m/%Y %H:%M:%S")
 
-        dialog_from_query = "INSERT INTO messages (from_tg_user_id, to_tg_user_id, chat_type, dialog_state, message)" + \
+        dialog_from_query = "INSERT INTO messages (from_tg_user_id, to_tg_user_id, hex_dig, chat_type, dialog_state, message)" + \
             " VALUES ({from_tg_user_id}, {to_tg_user_id}, '{hex_dig}', '{chat_type}', '{dialog_state}', '{message}') " + \
             " ON CONFLICT (hex_dig) " + \
             " DO UPDATE " + \
@@ -405,12 +405,13 @@ class DBHelper:
             "    chat_type = '{chat_type}', " + \
             "    dialog_state = '{dialog_state}', " + \
             "    message = CONCAT(message, '=>{dt_string}::', '{message}') " \
-                .format(from_tg_user_id = from_tg_user_id, to_tg_user_id = to_tg_user_id, \
+                .format(from_tg_user_id = from_tg_user_id, to_tg_user_id = to_tg_user_id, hex_dig = hex_dig, \
                     chat_type = chat_type, dialog_state = dialog_state, dt_string = dt_string, message = message_text)
         logging.info(dialog_from_query)
         self.dbdriver.insert_query(dialog_from_query)   
         dialog_state = await self.get_dialog_state(from_tg_user_id, to_tg_user_id)
         return dialog_state
+        
 
     async def get_dialog_state(self, from_tg_user_id: int, to_tg_user_id: int):
 
