@@ -245,11 +245,11 @@ class DBHelper:
 
         select_id_query = "SELECT p.tg_user_id as tg_user_id, u.tg_mention as tg_mention " + \
             "FROM cars AS p LEFT JOIN users AS u on p.tg_user_id = u.tg_user_id " + \
-            "WHERE car_number = '{car_number}'".format(car_number = car_number)
-            
+            "WHERE p.car_number = '{carnumber}'".format(carnumber = car_number)
+        logging.info(select_id_query)
         user_row = self.dbdriver.select_query(query=select_id_query, qtype='all')
         dbdata['contacts'] = user_row
-
+        logging.info(user_row)
         return dbdata    
 
     ############# all data ######################
