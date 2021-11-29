@@ -495,20 +495,20 @@ async def prepare_info_for_message(dataset, user=""):
     return message
 
 async def prepare_common_info_for_message(dataset):
-    message = f"Всего зарегистрировано у бота:"
+    message = f"Всего зарегистрировано у бота:\n\n"
     if dataset:
         for dtype in dataset:
             #message += "" + dtype + ":\n"
             for arrelem in dataset[dtype]:
                 for elem in arrelem:
                     if dtype == "users": 
-                        message += "🙍🏼‍♂️ " + str(arrelem[elem]) + " пользователей\n"
+                        message += "🙍🏼‍♂️ " + str(arrelem[elem]) + " пользователя(-ей)\n"
                     if dtype == "contacts": 
-                        message += "📞 " + str(arrelem[elem]) + " номеров\n"
+                        message += "📞 " + str(arrelem[elem]) + " номера(-ов)\n"
                     if dtype == "park_mm": 
-                        message += "🅿️ " + str(arrelem[elem]) + " мест\n"
+                        message += "🅿️ " + str(arrelem[elem]) + " мест(-а)\n"
                     if dtype == "cars": 
-                        message += "🚘 " + str(arrelem[elem]) + " автомобильных номеров\n"
+                        message += "🚘 " + str(arrelem[elem]) + " авто номера(-ов)\n"
 
     return message
 
