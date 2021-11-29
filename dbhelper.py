@@ -198,7 +198,7 @@ class DBHelper:
     ################## AUTO #######################
     async def change_auto(self, from_user: types.User, car_number: str, crud: str):
 
-        logging.info("mention " + str(from_user.mention))
+        logging.info(car_number)
 
         if not from_user:
             logging.error("NO USER!")
@@ -217,12 +217,12 @@ class DBHelper:
         contact_query = None
         if crud == 'add':
             contact_query = "INSERT INTO cars (tg_user_id, car_number) VALUES ({tg_user_id}, '{car_number}') ON CONFLICT DO NOTHING" \
-                    .format(tg_user_id = self.from_user.id, car_number = car_number)
+                    .format(tg_user_id = self.from_user.id, car_number = car_number.upper())
             logging.info(str(contact_query)) 
             self.dbdriver.insert_query(contact_query)   
         if crud == 'del':
             contact_query = "DELETE FROM cars WHERE tg_user_id='{tg_user_id}' AND car_number='{car_number}'" \
-                    .format(tg_user_id = self.from_user.id, car_number = car_number)
+                    .format(tg_user_id = self.from_user.id, car_number = car_number.upper())
             logging.info(str(contact_query)) 
             self.dbdriver.delete_query(contact_query)  
 
