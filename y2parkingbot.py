@@ -502,17 +502,13 @@ async def prepare_common_info_for_message(dataset):
             for arrelem in dataset[dtype]:
                 for elem in arrelem:
                     if dtype == "users": 
-                        if elem == "CNT":
-                            message += "🙍🏼‍♂️ " + str(arrelem[elem]) + " пользователей\n"
+                        message += "🙍🏼‍♂️ " + str(arrelem[elem]) + " пользователей\n"
                     if dtype == "contacts": 
-                        if elem == "CNT":
-                            message += "📞 " + str(arrelem[elem]) + " номеров\n"
+                        message += "📞 " + str(arrelem[elem]) + " номеров\n"
                     if dtype == "park_mm": 
-                        if elem == "CNT":
-                            message += "🅿️ " + str(arrelem[elem]) + " мест\n"
+                        message += "🅿️ " + str(arrelem[elem]) + " мест\n"
                     if dtype == "cars": 
-                        if elem == "CNT":
-                            message += "🚘 " + str(arrelem[elem]) + " автомобильных номеров\n"
+                        message += "🚘 " + str(arrelem[elem]) + " автомобильных номеров\n"
 
     return message
 

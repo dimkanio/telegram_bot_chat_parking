@@ -46,5 +46,5 @@ phone_message_btn = InlineKeyboardButton('☎️ По номеру телефо�
 messages_types_btn_markup = InlineKeyboardMarkup().add(mm_message_btn).add(auto_message_btn).add(phone_message_btn).add(home_btn)
 
 ############################ INFO ############################################
-common_counts = InlineKeyboardButton(' Общие счетчики', callback_data='common_cntrs_btn')
+common_counts = InlineKeyboardButton('📈 Общие счетчики', callback_data='common_cntrs_btn')
 common_btn_markup = InlineKeyboardMarkup().add(common_counts).add(home_btn)
