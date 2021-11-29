@@ -25,7 +25,7 @@ cancel_direct_dialog = InlineKeyboardButton('❌ Не отвечать', callbac
 reply_anon_btn = InlineKeyboardButton('🕶 Ответить анонимно', callback_data='reply_anonym_btn')
 reply_direct_btn = InlineKeyboardButton('👓 Ответить', callback_data='reply_direct_btn')
 message_direct_dialog_btn_markup = InlineKeyboardMarkup().add(reply_direct_btn).add(cancel_direct_dialog)
-message_direct_dialog_btn_markup = InlineKeyboardMarkup().add(reply_anon_btn).add(cancel_direct_dialog)
+message_anon_dialog_btn_markup = InlineKeyboardMarkup().add(reply_anon_btn).add(cancel_direct_dialog)
 
 ############################## SETTINGS BTNS ################################
 mm_settings_btn = InlineKeyboardButton('🅿️ Добавить/Изменить машиноместа', callback_data='mm_settings_btn')
