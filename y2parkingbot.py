@@ -260,7 +260,7 @@ async def process_name_au_not_valid(message: types.Message, state: FSMContext):
 @dp.message_handler(lambda msg: Valid.is_auto(msg.text), state = TestStates.ADD_AUTO_STATE)
 async def process_name_valid_au(message: types.Message, state: FSMContext):
     db = DBHelper()
-    await db.add_auto(message.from_user, message.text)
+    await db.add_auto(message.from_user, Valid.cyrillic2latin(message.text))
     await TestStates.SETTINGS_STATE.set()
     await message.reply(f"Вы сохранили новый автомобиль: \n\n🚗 " + Valid.cyrillic2latin(message.text), reply_markup=kb.settings_btn_markup)
     auto_info = await db.get_all_data(from_user=message.from_user)
@@ -399,6 +399,8 @@ async def process_name_au_message_not_valid(message: types.Message, state: FSMCo
 async def process_message_valid_mm(message: types.Message, state: FSMContext):
     await TestStates.GET_DIALOG_MESSAGE_STATE.set()
     db = DBHelper()
+    logging.info(message.text)
+    logging.info(Valid.cyrillic2latin(message.text))
     all_tg_ids = await db.get_users_auto(Valid.cyrillic2latin(message.text))
     logging.info(all_tg_ids)
     info_message = await prepare_tg_info_for_message("AUTO №" + message.text, all_tg_ids)
