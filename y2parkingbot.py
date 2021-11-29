@@ -349,7 +349,7 @@ async def process_message_valid_anon_continue(message: types.Message):
             logging.info(tg_user['tg_user_id'])
             await bot.send_message(tg_user['tg_user_id'], f"🕶 Вам анонимное сообщение:\n\n" + message.text)
             await bot.send_message(tg_user['tg_user_id'], f"Хотите ответить?", reply_markup=kb.message_anon_dialog_btn_markup)       
-        await message.reply(f"Передал. Пишите еще или останавливайте пересылку.", reply_markup=kb.cancel_btn_markup)
+        await message.reply(f"Передал анонимно. Пишите еще или останавливайте пересылку.", reply_markup=kb.cancel_btn_markup)
     else:
         await bot.send_message(message.from_user.id, "Не удалось отправить! Не найдены контакты.", reply_markup=kb.cancel_btn_markup)
 
@@ -385,7 +385,7 @@ async def process_message_valid_direct_continue(message: types.Message):
                 await bot.send_message(message.from_user.id, "Не могу переслать сообщение, не нашел чат с пользователем. Пробуйте анонимку.", reply_markup=kb.cancel_btn_markup)
             del db
 
-        await message.reply(f"Переслал. Пишите еще или останавливайте пересылку.", reply_markup=kb.cancel_btn_markup)
+        await message.reply(f"Переслал ваше сообщение. Пишите еще или останавливайте пересылку.", reply_markup=kb.cancel_btn_markup)
     else:
         await bot.send_message(message.from_user.id, "Не удалось отправить! Не найдены контакты.", reply_markup=kb.cancel_btn_markup)
 
