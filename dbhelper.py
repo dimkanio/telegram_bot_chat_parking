@@ -389,7 +389,7 @@ class DBHelper:
             logging.error("NO TO USER!")
             return None
 
-        hash_object = hashlib.sha1(str(from_tg_user_id + to_tg_user_id))
+        hash_object = hashlib.sha1(str(from_tg_user_id + to_tg_user_id).encode('utf-8'))
         hex_dig = hash_object.hexdigest()
 
         now = datetime.now()
