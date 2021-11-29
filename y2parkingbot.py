@@ -372,7 +372,7 @@ async def process_message_valid_direct_continue(message: types.Message):
             if to_chat_id:
                 await bot.forward_message(to_chat_id, message.chat.id, message.message_id, False)
 
-                await bot.send_message(to_chat_id, f"Ответить?", reply_markup=kb.message_direct_dialog_btn_markup)
+                await bot.send_message(to_chat_id, f"Хотите ответить?", reply_markup=kb.message_direct_dialog_btn_markup)
                 dialog_state = await db.change_dialog(message.chat.id, to_chat_id, 'direct', "OPEN", "from " + message.from_user.mention)
             else:
                 await bot.send_message(message.from_user.id, "Не могу переслать сообщение, не нашел чат с пользователем. Пробуйте анонимку.", reply_markup=kb.cancel_btn_markup)
@@ -399,7 +399,8 @@ async def process_callback_cancel_dialog_btn(callback_query: types.CallbackQuery
 @dp.callback_query_handler(lambda c: c.data == 'reply_direct_btn', state = "*") #COMMON
 async def process_callback_anonim_message_btn_send(callback_query: types.CallbackQuery):
     await TestStates.DIALOG_MESSAGE_STATE_FORWARD.set()
-    await bot.answer_callback_query(callback_query.id, f"Перевожу в режим диалога. Пишите ответ:")
+    await bot.answer_callback_query(callback_query.id)
+    await bot.send_message(callback_query.message.from_user.id, f"Перевожу в режим диалога. Пишите ответ:")
 
 ###### AUTO ###########
 @dp.callback_query_handler(lambda c: c.data == 'auto_message_btn', state = TestStates.SEND_MESSAGE_STATE)
