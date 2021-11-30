@@ -23,7 +23,7 @@ CREATE TABLE messages (
                           id SERIAL PRIMARY KEY,
                           from_tg_user_id BIGINT NOT NULL,
                           to_tg_user_id BIGINT,
-                          hex_dig UUID,
+                          hex_dig VARCHAR,
                           chat_type VARCHAR,
                           dialog_state VARCHAR,
                           message TEXT,

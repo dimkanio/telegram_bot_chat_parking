@@ -349,17 +349,44 @@ async def process_message_valid_anon_continue(message: types.Message):
     if taddr.tg_ids:
         for tg_user in taddr.tg_ids['contacts']:
             logging.info(tg_user['tg_user_id'])
-            await bot.send_message(tg_user['tg_user_id'], f"🕶 Вам анонимное сообщение:\n\n" + message.text)
-            await bot.send_message(tg_user['tg_user_id'], f"Хотите ответить?", reply_markup=kb.message_anon_dialog_btn_markup)       
+            db = DBHelper()
+            #to_chat_id = await db.get_users_chat(tg_user['tg_user_id'])
+            to_chat_id = tg_user['tg_user_id']
+            logging.info(to_chat_id)
+
+            if to_chat_id:
+                await bot.send_message(tg_user['tg_user_id'], f"🕶 Вам анонимное сообщение:\n\n" + message.text)
+                await bot.send_message(to_chat_id, f"Хотите ответить?", reply_markup=kb.message_anon_dialog_btn_markup)
+                dialog_state = await db.change_dialog(message.chat.id, to_chat_id, 'direct', "OPEN", "from " + message.from_user.mention)
+            else:
+                await bot.send_message(message.from_user.id, "Не могу переслать сообщение, не нашел чат с пользователем.", reply_markup=kb.cancel_btn_markup)
+            del db
+ 
         await message.reply(f"Передал анонимно. Пишите еще или останавливайте пересылку.", reply_markup=kb.cancel_btn_markup)
     else:
         await bot.send_message(message.from_user.id, "Не удалось отправить! Не найдены контакты.", reply_markup=kb.cancel_btn_markup)
 
 @dp.callback_query_handler(lambda c: c.data == 'reply_anonym_btn', state = "*") #COMMON
 async def process_callback_anonim_reply_message_btn_send(callback_query: types.CallbackQuery):
-    await TestStates.DIALOG_MESSAGE_STATE.set()
+    await TestStates.DIALOG_MESSAGE_STATE_REPLY.set()
     await bot.answer_callback_query(callback_query.id)
     await bot.send_message(callback_query.from_user.id, f"Пишите ответ:")
+
+@dp.message_handler(state = TestStates.DIALOG_MESSAGE_STATE_REPLY)   #COMMON
+async def process_message_valid_anon_continue_reply(message: types.Message):
+
+    db = DBHelper()
+    to_chat_id = await db.get_open_user_dialog(message.chat.id)
+
+    if to_chat_id:
+        await bot.send_message(to_chat_id, f"🕶 Вам анонимное сообщение:\n\n" + message.text)
+        await bot.send_message(to_chat_id, f"Хотите ответить?", reply_markup=kb.message_direct_dialog_btn_markup)
+        dialog_state = await db.change_dialog(message.chat.id, to_chat_id, 'direct', "OPEN", "from " + message.from_user.mention)
+        await message.reply(f"Переслал ваше сообщение. Пишите еще или останавливайте пересылку.", reply_markup=kb.cancel_btn_markup)
+    else:
+        await bot.send_message(message.from_user.id, "Не могу переслать сообщение, не нашел открытый чат с пользователем. Попробуйте заново найти его и открыть диалог", reply_markup=kb.cancel_btn_markup)
+    del db
+
 
 @dp.callback_query_handler(lambda c: c.data == 'direct_btn', state = TestStates.GET_DIALOG_MESSAGE_STATE) #COMMON
 async def process_callback_forward_message_btn_send_direct(callback_query: types.CallbackQuery):
