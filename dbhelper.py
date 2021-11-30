@@ -398,7 +398,7 @@ class DBHelper:
         dialog_from_query = "INSERT INTO messages as m (from_tg_user_id, to_tg_user_id, hex_dig, chat_type, dialog_state, message)" + \
             " VALUES (" + "{0}, {1}, '{2}', '{3}', '{4}', '{5}'" \
                 .format(from_tg_user_id, to_tg_user_id, hex_dig, chat_type, dialog_state, message_text) + \
-            ") ON CONFLICT (from_tg_user_id) " + \
+            ") ON CONFLICT (from_tg_user_id, to_tg_user_id) " + \
             " DO UPDATE " + \
             " SET chat_type = '{0}', dialog_state = '{1}',".format(chat_type, dialog_state) + \
             " message = CONCAT(m.message, '=>" + "{}=>', ".format(dt_string) + "'{}'".format(message_text) + ") " + \
@@ -409,16 +409,16 @@ class DBHelper:
         to_tg_user_id = await self.get_open_user_dialog(from_tg_user_id)
         return to_tg_user_id
 
-    async def get_open_user_dialog(self, from_tg_user_id: int):
+    async def get_open_user_dialog(self, to_tg_user_id: int):
 
-        logging.info("get_user_dialog " + str(from_tg_user_id))       
+        logging.info("get_user_dialog " + str(to_tg_user_id))       
 
         if not self.dbdriver:
             logging.error("DB DRIVER IS NOT FOUND!")
             return None
 
-        select_to_tg_user_id_query = "SELECT to_tg_user_id FROM messages WHERE dialog_state = 'OPEN' AND from_tg_user_id = {from_tg_user_id}" \
-            .format(from_tg_user_id = from_tg_user_id)
+        select_to_tg_user_id_query = "SELECT from_tg_user_id FROM messages WHERE dialog_state = 'OPEN' AND to_tg_user_id = {to_tg_user_id}" \
+            .format(to_tg_user_id = to_tg_user_id)
         logging.info("select_to_tg_user_id_query: " + str(select_to_tg_user_id_query)) 
         hex_dig_row = self.dbdriver.select_query(query=select_to_tg_user_id_query, qtype='one')
         logging.info(hex_dig_row) 
@@ -427,5 +427,5 @@ class DBHelper:
             logging.error("NO hex_dig found!")
             return None
 
-        return hex_dig_row[0]['to_tg_user_id']
+        return hex_dig_row[0]['from_tg_user_id']
 
