@@ -396,12 +396,13 @@ class DBHelper:
         dt_string = now.strftime("%d/%m/%Y %H:%M:%S")
 
         dialog_from_query = "INSERT INTO messages (from_tg_user_id, to_tg_user_id, hex_dig, chat_type, dialog_state, message)" + \
-            " VALUES \({0}, {1}, '{2}', '{3}', '{4}', '{5}'\) " + \
-            " ON CONFLICT (from_tg_user_id, to_tg_user_id) " + \
+            " VALUES (" + "{0}, {1}, '{2}', '{3}', '{4}', '{5}'" \
+                .format(from_tg_user_id, to_tg_user_id, hex_dig, chat_type, dialog_state, message_text) + \
+            ") ON CONFLICT (from_tg_user_id, to_tg_user_id) " + \
             " DO UPDATE " + \
-            " SET chat_type = '{3}', dialog_state = '{4}', message = CONCAT(message, '=>{6}=>', '{5}') " + \
-            " WHERE hex_dig = '{2}' AND from_tg_user_id = {0}" \
-                .format(from_tg_user_id, to_tg_user_id, hex_dig, chat_type, dialog_state, message_text, dt_string)
+            " SET chat_type = '{0}', dialog_state = '{1}',".format(chat_type, dialog_state) + \
+            " message = CONCAT(message, '=>" + "{}=>', ".format(dt_string) + "'{}'".format(message_text) + ") " + \
+            " WHERE hex_dig = '{0}' AND from_tg_user_id = {1}".format(hex_dig, from_tg_user_id)
 
         logging.info(dialog_from_query)
         self.dbdriver.insert_query(dialog_from_query)   
