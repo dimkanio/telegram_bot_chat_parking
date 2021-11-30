@@ -44,7 +44,7 @@ class DBDriver:
                         output.append(dictdata)
 
         except (Exception, psycopg2.DatabaseError) as error:
-            logging.error(f"The error '{}' occurred".format(error))
+            logging.error(f"The error '{error}' occurred".format(error))
         finally:
             if self.connection is not None:
                 self.connection.close()
