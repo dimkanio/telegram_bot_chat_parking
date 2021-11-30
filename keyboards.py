@@ -17,12 +17,12 @@ home_btn_markup = InlineKeyboardMarkup().add(cancel_btn)
 cancel_dialog = InlineKeyboardButton('❌ Остановить пересылку сообщений', callback_data='cancel_dialog')
 cancel_btn_markup = InlineKeyboardMarkup().add(cancel_dialog)
 
-anonym_btn = InlineKeyboardButton('🕶 Отправить анонимно', callback_data='anonym_btn')
-direct_btn = InlineKeyboardButton('👓 Переслать от моего имени', callback_data='direct_btn')
+anonym_btn = InlineKeyboardButton('🕶 Отправить \nанонимно', callback_data='anonym_btn')
+direct_btn = InlineKeyboardButton('👓 Переслать \nот моего имени', callback_data='direct_btn')
 message_btn_markup = InlineKeyboardMarkup().add(anonym_btn).add(direct_btn).add(cancel_dialog)
 
 cancel_direct_dialog = InlineKeyboardButton('❌ Не отвечать', callback_data='cancel_dialog')
-reply_anon_btn = InlineKeyboardButton('🕶 Ответить анонимно', callback_data='reply_anonym_btn')
+reply_anon_btn = InlineKeyboardButton('🕶 Ответить \nанонимно', callback_data='reply_anonym_btn')
 reply_direct_btn = InlineKeyboardButton('👓 Ответить', callback_data='reply_direct_btn')
 
 message_direct_dialog_btn_markup = InlineKeyboardMarkup().add(reply_direct_btn, reply_anon_btn, cancel_direct_dialog)
