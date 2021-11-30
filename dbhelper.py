@@ -398,7 +398,7 @@ class DBHelper:
         dialog_from_query = "INSERT INTO messages as m (from_tg_user_id, to_tg_user_id, hex_dig, chat_type, dialog_state, message)" + \
             " VALUES (" + "{0}, {1}, '{2}', '{3}', '{4}', '{5}'" \
                 .format(from_tg_user_id, to_tg_user_id, hex_dig, chat_type, dialog_state, message_text) + \
-            ") ON CONFLICT (from_tg_user_id, to_tg_user_id) " + \
+            ") ON CONFLICT (from_tg_user_id) " + \
             " DO UPDATE " + \
             " SET chat_type = '{0}', dialog_state = '{1}',".format(chat_type, dialog_state) + \
             " message = CONCAT(m.message, '=>" + "{}=>', ".format(dt_string) + "'{}'".format(message_text) + ") " + \
