@@ -397,37 +397,36 @@ class DBHelper:
 
         dialog_from_query = "INSERT INTO messages (from_tg_user_id, to_tg_user_id, hex_dig, chat_type, dialog_state, message)" + \
             " VALUES ({from_tg_user_id}, {to_tg_user_id}, '{hex_dig}', '{chat_type}', '{dialog_state}', '{message}') " + \
-            " ON CONFLICT (hex_dig) " + \
+            " ON CONFLICT (from_tg_user_id, to_tg_user_id) " + \
             " DO UPDATE " + \
             " SET chat_type = '{chat_type2}', " + \
             "    dialog_state = '{dialog_state2}', " + \
-            "    message = CONCAT(message, '=>{dt_string}::', '{message2}') WHERE hex_dig = '{hex_dig2}'" \
+            "    message = CONCAT(message, '=>{dt_string}::', '{message2}') WHERE hex_dig = '{hex_dig2}' AND from_tg_user_id = {from_tg_user_id2}" \
                 .format(from_tg_user_id = from_tg_user_id, to_tg_user_id = to_tg_user_id, hex_dig = hex_dig, \
                     chat_type = chat_type, dialog_state = dialog_state, message = message_text, chat_type2 = chat_type, \
-                    dialog_state2 = dialog_state, dt_string = dt_string, message2 = message_text, hex_dig2 = hex_dig)
+                    dialog_state2 = dialog_state, dt_string = dt_string, message2 = message_text, hex_dig2 = hex_dig, from_tg_user_id2 = from_tg_user_id)
         logging.info(dialog_from_query)
         self.dbdriver.insert_query(dialog_from_query)   
-        dialog_state = await self.get_dialog_state(from_tg_user_id, to_tg_user_id)
-        return dialog_state
+        to_tg_user_id = await self.get_open_user_dialog(from_tg_user_id)
+        return to_tg_user_id
 
-    async def get_dialog_state(self, from_tg_user_id: int, to_tg_user_id: int):
+    async def get_open_user_dialog(self, from_tg_user_id: int):
 
-        hash_object = hashlib.sha1(str(from_tg_user_id + to_tg_user_id).encode('utf-8'))
-        hex_dig = hash_object.hexdigest()
-        logging.info("get_dialog_state " + str(hex_dig))       
+        logging.info("get_user_dialog " + str(from_tg_user_id))       
 
         if not self.dbdriver:
             logging.error("DB DRIVER IS NOT FOUND!")
             return None
 
-        select_hex_dig_query = "SELECT dialog_state FROM messages WHERE hex_dig = '{hex_dig}'".format(hex_dig = hex_dig)
-        logging.info("hex_dig_row: " + str(select_hex_dig_query)) 
-        hex_dig_row = self.dbdriver.select_query(query=select_hex_dig_query, qtype='one')
+        select_to_tg_user_id_query = "SELECT to_tg_user_id FROM messages WHERE dialog_state = 'OPEN' AND from_tg_user_id = {from_tg_user_id}" \
+            .format(from_tg_user_id = from_tg_user_id)
+        logging.info("select_to_tg_user_id_query: " + str(select_to_tg_user_id_query)) 
+        hex_dig_row = self.dbdriver.select_query(query=select_to_tg_user_id_query, qtype='one')
         logging.info(hex_dig_row) 
 
         if not hex_dig_row:
             logging.error("NO hex_dig found!")
             return None
 
-        return hex_dig_row[0]['dialog_state']
+        return hex_dig_row[0]['to_tg_user_id']
 

@@ -1,6 +1,0 @@
-import os
-
-TOKEN = '211212:TGGGGGGGGGTTTFMMMD<D<'
-PARKING_CHAT_ID = -900000000
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-DBPATH = os.path.join(BASE_DIR, "parkingdb")
