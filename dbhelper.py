@@ -397,7 +397,7 @@ class DBHelper:
 
         dialog_close_query = " UPDATE messages" + \
             " SET dialog_state = 'CLOSED' " + \
-            " WHERE hex_dig = '{0}' AND from_tg_user_id = {1}".format(hex_dig, from_tg_user_id)
+            " WHERE from_tg_user_id = {0}".format(from_tg_user_id)
         logging.info(dialog_close_query)
         self.dbdriver.update_query(dialog_close_query)   
 
