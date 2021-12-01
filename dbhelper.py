@@ -395,6 +395,12 @@ class DBHelper:
         now = datetime.now()
         dt_string = now.strftime("%d/%m/%Y %H:%M:%S")
 
+        dialog_close_query = " UPDATE messages" + \
+            " SET dialog_state = 'CLOSED' " + \
+            " WHERE hex_dig = '{0}' AND from_tg_user_id = {1}".format(hex_dig, from_tg_user_id)
+        logging.info(dialog_close_query)
+        self.dbdriver.update_query(dialog_close_query)   
+
         dialog_from_query = "INSERT INTO messages as m (from_tg_user_id, to_tg_user_id, hex_dig, chat_type, dialog_state, message)" + \
             " VALUES (" + "{0}, {1}, '{2}', '{3}', '{4}', '{5}'" \
                 .format(from_tg_user_id, to_tg_user_id, hex_dig, chat_type, dialog_state, message_text) + \
