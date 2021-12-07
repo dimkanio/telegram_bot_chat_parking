@@ -361,6 +361,27 @@ class DBHelper:
         logging.info(dbdata) 
         return dbdata
 
+    async def get_mm_list(self):
+
+        logging.info("GET MM LIST ")
+
+        dbdata = []
+
+        if not self.dbdriver:
+            logging.error("DB DRIVER IS NOT FOUND!")
+            return None
+
+        select_park_mm_list_query = "SELECT DISTINCT park_mm FROM park_mm order be park_mm ASC"
+        park_mm_row = self.dbdriver.select_query(query=select_park_mm_list_query, qtype='all')
+
+        logging.info(str(park_mm_row.count)) 
+
+        if park_mm_row:
+            for cell in park_mm_row:
+                dbdata.append(park_mm_row[cell])
+
+        return park_mm_row
+
     ############# messages ######################
     async def change_dialog(self, from_tg_user_id: int, to_tg_user_id: int,
                     chat_type: str, dialog_state: str, message_text = ""):

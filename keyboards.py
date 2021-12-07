@@ -57,4 +57,5 @@ messages_types_btn_markup = InlineKeyboardMarkup().add(mm_message_btn).add(auto_
 
 ############################ INFO ############################################
 common_counts = InlineKeyboardButton('📈 Общие счетчики', callback_data='common_cntrs_btn')
-common_btn_markup = InlineKeyboardMarkup().add(common_counts).add(home_btn)
+common_draw = InlineKeyboardButton('🗺 Карта паркинга', callback_data='common_map_btn')
+common_btn_markup = InlineKeyboardMarkup().add(common_counts).add(common_draw).add(home_btn)

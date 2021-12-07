@@ -23,6 +23,7 @@ import keyboards as kb
 from dbhelper import DBHelper
 from stateflow import TestStates
 from validator import Valid
+from parkmap import ParkMap
 
 logging.basicConfig(format=u'%(filename)+13s [ LINE:%(lineno)-4s] %(levelname)-8s [%(asctime)s] %(message)s',
                     level=logging.DEBUG)
@@ -526,6 +527,18 @@ async def process_callback_auto_message_btn(callback_query: types.CallbackQuery)
 
     await bot.send_message(callback_query.from_user.id, info_message, reply_markup=kb.common_btn_markup)
 
+@dp.callback_query_handler(lambda c: c.data == 'common_map_btn', state = TestStates.INFO_STATE)
+async def process_callback_auto_message_btn(callback_query: types.CallbackQuery):
+    await bot.answer_callback_query(callback_query.id)
+    db = DBHelper()
+    db_mm_list = await db.get_mm_list()
+    if db_mm_list:
+        map_link = await prepare_mm_map_for_message(db_mm_list)
+        await bot.send_message(callback_query.from_user.id, map_link, reply_markup=kb.common_btn_markup)
+    else:
+        await bot.send_message(callback_query.from_user.id, 'Что-то пошло не так :(', reply_markup=kb.home_btn_markup)
+    del db
+
 @dp.message_handler(lambda msg: not (hasattr(msg, 'callback_data')), state = TestStates.INFO_STATE)
 async def process_name_start(message: types.Message, state: FSMContext):
     await message.reply("Выберите пункт меню!")
@@ -581,6 +594,15 @@ async def prepare_common_info_for_message(dataset):
                         message += "🅿️ " + str(arrelem[elem]) + " мест(-а)\n"
                     if dtype == "cars": 
                         message += "🚘 " + str(arrelem[elem]) + " авто номера(-ов)\n"
+
+    return message
+
+async def prepare_mm_map_for_message(dataset):
+    message = f"Карта паркинга. Цветом отмечены места, которые зарегистрированы у бота. Им можно написать сообщение по номеру машиноместа.\n\n"
+    if dataset:
+        pm = ParkMap()
+        link = pm.draw_map(dataset)  
+        message += link 
 
     return message
 
