@@ -603,6 +603,7 @@ async def prepare_mm_map_for_message(dataset):
         pm = ParkMap()
         link = pm.draw_map(dataset)  
         message += link 
+        del pm
 
     return message
 
