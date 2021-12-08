@@ -9,7 +9,7 @@ from dbdriver import DBDriver
 from aiogram import Bot, types
 from aiogram.dispatcher import FSMContext
 import hashlib
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 
 class DBHelper:
 
@@ -413,7 +413,10 @@ class DBHelper:
         hash_object = hashlib.sha1(str(from_tg_user_id + to_tg_user_id).encode('utf-8'))
         hex_dig = hash_object.hexdigest()
 
+        offset = timedelta(hours=3)
+        tz = timezone(offset, name='МСК')
         now = datetime.now()
+        tz.tzname(now)
         dt_string = now.strftime("%d/%m/%Y %H:%M:%S")
 
         dialog_close_query = " UPDATE messages" + \
@@ -464,7 +467,10 @@ class DBHelper:
             logging.error("DB DRIVER IS NOT FOUND!")
             return None
             
+        offset = timedelta(hours=3)
+        tz = timezone(offset, name='МСК')
         now = datetime.now()
+        tz.tzname(now)
         date_added = now.strftime("%d/%m/%Y %H:%M:%S")
 
         html_from_query = "INSERT INTO html AS h (num, page_html, date_added)" + \
