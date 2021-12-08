@@ -2,6 +2,7 @@ import pandas as pd
 from os import remove
 import re
 from config import HOME_URL
+import logging
 
 class ParkMap:
 
@@ -139,6 +140,8 @@ class ParkMap:
 
     def draw_map(self, dataset):
         self._build_map()
+
+        logging.info("MAP WAS BUILDED")
         
         df = pd.DataFrame(data=self.park_data)
         df.pivot(index='row',columns='column', values='parking') \
@@ -157,6 +160,8 @@ class ParkMap:
                     
         #Remove original file
         remove('tmp_' + self.HTML_FILE)
+
+        logging.info("map file was created")
 
         return HOME_URL + "index.php"
 
