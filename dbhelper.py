@@ -472,7 +472,7 @@ class DBHelper:
             " ON CONFLICT (num) " + \
             " DO UPDATE " + \
             " SET page_html = '{0}'".format(f_data) + \
-            "   , date_added = '{0}".format(date_added) + \
+            "   , date_added = '{0}'".format(date_added) + \
             " WHERE num = 100"
 
         logging.info(html_from_query)
