@@ -1,7 +1,7 @@
 import pandas as pd
 from os import remove
-from config import HOME_URL
 import re
+from config import HOME_URL
 
 class ParkMap:
 
@@ -158,5 +158,5 @@ class ParkMap:
         #Remove original file
         remove('tmp_' + self.HTML_FILE)
 
-        return HOME_URL + '/' + self.HTML_FILE
+        return HOME_URL + self.HTML_FILE
 
