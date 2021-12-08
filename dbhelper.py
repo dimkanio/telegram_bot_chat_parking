@@ -371,7 +371,7 @@ class DBHelper:
             logging.error("DB DRIVER IS NOT FOUND!")
             return None
 
-        select_park_mm_list_query = "SELECT DISTINCT park_mm FROM park_mm order be park_mm ASC"
+        select_park_mm_list_query = "SELECT DISTINCT park_mm FROM park_mm order by park_mm ASC"
         park_mm_row = self.dbdriver.select_query(query=select_park_mm_list_query, qtype='all')
 
         logging.info(str(park_mm_row.count)) 
