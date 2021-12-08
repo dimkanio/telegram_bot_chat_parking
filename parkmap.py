@@ -158,5 +158,5 @@ class ParkMap:
         #Remove original file
         remove('tmp_' + self.HTML_FILE)
 
-        return HOME_URL + self.HTML_FILE
+        return HOME_URL + "index.php"
 
