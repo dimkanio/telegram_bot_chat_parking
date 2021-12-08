@@ -378,9 +378,9 @@ class DBHelper:
 
         if park_mm_row:
             for cell in park_mm_row:
-                dbdata.append(park_mm_row[cell])
+                dbdata.append(cell['park_mm'])
 
-        return park_mm_row
+        return dbdata
 
     ############# messages ######################
     async def change_dialog(self, from_tg_user_id: int, to_tg_user_id: int,
