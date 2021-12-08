@@ -17,7 +17,7 @@ class ParkMap:
 
     def _build_map(self):
         self.parking = list(range(1,319,1))
-        park_data = []
+        self.park_data = []
         for col in range(3,23,1):
             for row in range(1,12,1):
                 if col in self.asc_columns:
