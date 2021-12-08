@@ -9,7 +9,7 @@ from dbdriver import DBDriver
 from aiogram import Bot, types
 from aiogram.dispatcher import FSMContext
 import hashlib
-from datetime import datetime
+from datetime import datetime, timezone
 
 class DBHelper:
 
@@ -455,4 +455,48 @@ class DBHelper:
             return None
 
         return hex_dig_row[0]['from_tg_user_id']
+
+    async def save_html(self, f_data):
+
+        logging.info("save_html()")
+
+        if not self.dbdriver:
+            logging.error("DB DRIVER IS NOT FOUND!")
+            return None
+            
+        now = datetime.now()
+        date_added = now.strftime("%d/%m/%Y %H:%M:%S")
+
+        html_from_query = "INSERT INTO html (num, page_html, date_added)" + \
+            " VALUES ({0}, '{1}', '{2}'".format(100, f_data, date_added) + ")" + \
+            " ON CONFLICT (num) " + \
+            " DO UPDATE " + \
+            " SET page_html = '{0}'".format(f_data) + \
+            "   , date_added = '{0}".format(date_added) + \
+            " WHERE num = 100"
+
+        logging.info(html_from_query)
+        self.dbdriver.insert_query(html_from_query)   
+        return True
+
+    async def get_html(self, f_data):
+
+        logging.info("get_html()")
+
+        if not self.dbdriver:
+            logging.error("DB DRIVER IS NOT FOUND!")
+            return None
+
+        select_query = "SELECT page_html FROM html WHERE num = 100"
+        html_row = self.dbdriver.select_query(query=select_query, qtype='all')
+
+        #logging.info(str(html_row)) 
+
+        if html_row:
+            for cell in html_row:
+                return cell['page_html']
+        else:
+            return 'Ошибка! Карта не подгрузилась!'
+
+
 

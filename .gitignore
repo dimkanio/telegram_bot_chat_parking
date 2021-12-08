@@ -130,3 +130,5 @@ dmypy.json
 
 # configs
 parkingdb
+map.html
+logs.txt

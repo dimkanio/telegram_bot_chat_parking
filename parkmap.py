@@ -3,6 +3,8 @@ from os import remove
 import re
 from config import HOME_URL
 import logging
+from dbhelper import DBHelper
+import io
 
 class ParkMap:
 
@@ -140,30 +142,47 @@ class ParkMap:
 
         return html_string
 
-    def draw_map(self, dataset):
+    async def draw_map(self, dataset):
         self._build_map()
 
         logging.info("MAP WAS BUILDED")
         
         df = pd.DataFrame(data=self.park_data)
+        str_io = io.StringIO()
         df.pivot(index='row',columns='column', values='parking') \
             .rename_axis(None, axis=1) \
-                .to_html('tmp_' + self.HTML_FILE, header=False, index=False) 
+                .to_html(buf=str_io, header=False, index=False) 
+                
+        html_str = str_io.getvalue()
+        html_str_format_io = io.StringIO()
+        
+        for line in html_str.split('\n'):
+            line = line.replace('border="1"','border="0"')
+            line = line.replace('<td>','<td style="width:30;background-color: white">')  
+            if ParkMap.is_mm_number(line):
+                if ParkMap.__get_mm_number(line) in dataset:
+                    line = ParkMap.highlight_mm_number(line)
+            html_str_format_io.write(line + '\n')
 
-        with open(self.HTML_FILE ,'w') as new_file:
-            with open('tmp_' + self.HTML_FILE) as old_file:
-                for line in old_file:
-                    line = line.replace('border="1"','border="0"')
-                    line = line.replace('<td>','<td style="width:30;background-color: white">')  
-                    if ParkMap.is_mm_number(line):
-                        if ParkMap.__get_mm_number(line) in dataset:
-                            line = ParkMap.highlight_mm_number(line)
-                    new_file.write(line)
-                    
-        #Remove original file
-        remove('tmp_' + self.HTML_FILE)
+        html_str_format = html_str_format_io.getvalue()
+
+        if html_str_format:
+            db = DBHelper()
+            html_db_data = await db.save_html(html_str_format)
+            logging.info("saved to db")
+            del db
 
         logging.info("map file was created")
 
+        return html_db_data
+
+    @staticmethod
+    def show_map(self):
+        logging.info("show_map")
         return HOME_URL + "index.php"
+        
+
+
+
+
 

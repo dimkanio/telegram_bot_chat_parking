@@ -213,8 +213,14 @@ async def process_name_valid_mm(message: types.Message, state: FSMContext):
     await message.reply(f"Вы сохранили новое машиноместо: \n\n🅿️ " + message.text, reply_markup=kb.settings_btn_markup)
     park_mm_info = await db.get_all_data(from_user=message.from_user)
     info_message = await prepare_info_for_message(park_mm_info, message.from_user.mention)
+    db_mm_list = await db.get_mm_list()
     del db
+
     await bot.send_message(message.from_user.id, info_message)
+    #update html
+    pm = ParkMap()
+    await pm.draw_map(db_mm_list)  
+    del pm
 
 ########## del
 @dp.callback_query_handler(lambda c: c.data == 'del_mm_btn', state = TestStates.SETTINGS_STATE_MM)
@@ -235,8 +241,13 @@ async def process_name_del_valid_mm(message: types.Message, state: FSMContext):
     await message.reply(f"⛔️ Вы удалили машиноместо: \n\n🅿️ " + message.text, reply_markup=kb.settings_btn_markup)
     park_mm_info = await db.get_all_data(from_user=message.from_user)
     info_message = await prepare_info_for_message(park_mm_info, message.from_user.mention)
+    db_mm_list = await db.get_mm_list()
     del db
     await bot.send_message(message.from_user.id, info_message)
+    #update html
+    pm = ParkMap()
+    await pm.draw_map(db_mm_list)  
+    del pm
 
 ###### CHANGE AUTO #####################
 @dp.callback_query_handler(lambda c: c.data == 'auto_settings_btn', state = TestStates.SETTINGS_STATE)
@@ -530,14 +541,17 @@ async def process_callback_auto_message_btn(callback_query: types.CallbackQuery)
 @dp.callback_query_handler(lambda c: c.data == 'common_map_btn', state = TestStates.INFO_STATE)
 async def process_callback_auto_message_btn(callback_query: types.CallbackQuery):
     await bot.answer_callback_query(callback_query.id)
-    db = DBHelper()
-    db_mm_list = await db.get_mm_list()
-    if db_mm_list:
-        map_link = await prepare_mm_map_for_message(db_mm_list)
-        await bot.send_message(callback_query.from_user.id, map_link, reply_markup=kb.common_btn_markup)
-    else:
-        await bot.send_message(callback_query.from_user.id, 'Что-то пошло не так :(', reply_markup=kb.home_btn_markup)
-    del db
+    map_link = await prepare_mm_map_for_message()
+    await bot.send_message(callback_query.from_user.id, map_link, reply_markup=kb.common_btn_markup)
+
+    # db = DBHelper()
+    # db_mm_list = await db.get_mm_list()
+    # if db_mm_list:
+    #     map_link = await prepare_mm_map_for_message(db_mm_list)
+    #     await bot.send_message(callback_query.from_user.id, map_link, reply_markup=kb.common_btn_markup)
+    # else:
+    #     await bot.send_message(callback_query.from_user.id, 'Что-то пошло не так :(', reply_markup=kb.home_btn_markup)
+    # del db
 
 @dp.message_handler(lambda msg: not (hasattr(msg, 'callback_data')), state = TestStates.INFO_STATE)
 async def process_name_start(message: types.Message, state: FSMContext):
@@ -597,14 +611,9 @@ async def prepare_common_info_for_message(dataset):
 
     return message
 
-async def prepare_mm_map_for_message(dataset):
+async def prepare_mm_map_for_message():
     message = f"Карта паркинга. Цветом отмечены места, которые зарегистрированы у бота. Им можно написать сообщение по номеру машиноместа.\n\n"
-    if dataset:
-        pm = ParkMap()
-        link = pm.draw_map(dataset)  
-        message += link 
-        del pm
-
+    message += ParkMap.show_map()  
     return message
 
 async def prepare_tg_info_for_message(key, dataset):
