@@ -467,13 +467,13 @@ class DBHelper:
         now = datetime.now()
         date_added = now.strftime("%d/%m/%Y %H:%M:%S")
 
-        html_from_query = "INSERT INTO html (num, page_html, date_added)" + \
-            " VALUES ({0}, '{1}', '{2}'".format(100, f_data, date_added) + ")" + \
+        html_from_query = "INSERT INTO html AS h (num, page_html, date_added)" + \
+            " VALUES ({0}, '{1}', '{2}')".format('100', f_data, date_added) + \
             " ON CONFLICT (num) " + \
             " DO UPDATE " + \
-            " SET page_html = '{0}'".format(f_data) + \
-            "   , date_added = '{0}'".format(date_added) + \
-            " WHERE num = 100"
+            " SET page_html = '{0}' ".format(f_data) + \
+            "   , date_added = '{0}' ".format(date_added) + \
+            " WHERE h.num = 100"
 
         logging.info(html_from_query)
         self.dbdriver.insert_query(html_from_query)   
