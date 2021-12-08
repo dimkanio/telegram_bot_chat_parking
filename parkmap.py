@@ -177,7 +177,7 @@ class ParkMap:
         return html_db_data
 
     @staticmethod
-    def show_map(self):
+    def show_map():
         logging.info("show_map")
         return HOME_URL + "index.php"
         
