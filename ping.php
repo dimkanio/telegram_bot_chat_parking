@@ -17,7 +17,7 @@
         $chat_id = getenv("PING_CHAT");
         $data = [
             'chat_id' => $chat_id,
-            'text' => $_POST['PING']
+            'text' => 'PING'
         ];
         $response = file_get_contents("https://api.telegram.org/bot$apiToken/sendMessage?" . http_build_query($data) );
 
