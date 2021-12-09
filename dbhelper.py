@@ -482,7 +482,7 @@ class DBHelper:
             " SET page_html = '{0}' ".format(f_data) + \
             "   , date_added = '{0}' ".format(date_added) + \
             "   , map_key = '{0}' ".format(map_key) + \
-            " WHERE h.num = {0}}".format(SALT)
+            " WHERE h.num = {0}".format(SALT)
 
         #logging.info(html_from_query)
         self.dbdriver.insert_query(html_from_query)   
