@@ -514,7 +514,7 @@ class DBHelper:
             logging.error("DB DRIVER IS NOT FOUND!")
             return None
 
-        select_query = "SELECT map_key FROM html WHERE num = {0}}".format(SALT)
+        select_query = "SELECT map_key FROM html WHERE num = {0}".format(SALT)
         map_row = self.dbdriver.select_query(query=select_query, qtype='all')
 
         #logging.info(str(html_row)) 
