@@ -58,7 +58,7 @@ DROP TABLE IF EXISTS html;
 CREATE TABLE html (
         num BIGINT ,
         page_html TEXT,
-        map_key VARCHAR(255)
+        map_key VARCHAR(255),
         date_added VARCHAR(40) default NULL,
         UNIQUE (num)
 );

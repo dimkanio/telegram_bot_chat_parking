@@ -194,7 +194,7 @@ class ParkMap:
         map_key_new = hashlib.md5(str_hash.encode('utf-8'))
 
         if (str(map_key_new).lower() != str(map_key).lower()):
-            db.update_map_key(map_key_new)
+            await db.update_map_key(map_key_new)
             map_key = await db.get_map_key()
             logging.info(map_key)
         del db
