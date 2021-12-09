@@ -4,31 +4,31 @@
  </head>
  <body>
  <?php 
-    if (!empty($_GET)) {
-        echo "Неверная ссылка !\n";
-        die();
+
+    if (!array_key_exists('key', $_GET))
+    {
+        echo "Неверная ссылка..\n";
+        exit;
     }
 
-    $key_hash = '';
-    foreach ($_GET as $name=>$param){
+    $key_hash = $_GET['key'] ?? '';
 
-        if(strcasecmp($name, 'key') == 0) {
-            $key_hash = $param;
-        }
-    } 
+    echo "<script>console.log('Debug 1: " . $key_hash . "' );</script>";
     
     if (empty($key_hash)) {
-        echo "Неверная ссылка\n";
-        die();
+        echo "Неверная ссылка..\n";
+        exit();
     }
 
     $salt = getenv("SALT");
     $hash_string = date("d/m/Y")." ".$salt;
     $our_key_hash = md5(utf8_encode($hash_string));
 
+    echo "<script>console.log('Debug 2: " . $our_key_hash . "' );</script>";
+
     if(strcasecmp($our_key_hash, $key_hash) != 0) {
         echo "Ссылка недействительна! Запросите новую!";
-        die();
+        exit();
     }
 
     $db_url = getenv("DATABASE_URL");
