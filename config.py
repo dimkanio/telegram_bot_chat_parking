@@ -6,3 +6,4 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DBPATH = os.path.join(BASE_DIR, "db1e3bfkg2bidc")
 DATABASE_URL = os.environ.get("DATABASE_URL")
 HOME_URL = os.environ['HOME_URL']
+SALT = os.environ['SALT']

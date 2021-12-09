@@ -1,14 +1,41 @@
 <html>
  <head>
-  <title>Карта паркинга</title>
+  <title>Карта</title>
  </head>
  <body>
  <?php 
+    if (!empty($_GET)) {
+        echo "Неверная ссылка!\n";
+        die();
+    }
+
+    $key_hash = '';
+    foreach ($_GET as $name=>$param){
+
+        if(strcasecmp($name, $key) == 0) {
+            $key_hash = $param;
+        }
+    } 
+    
+    if (empty($key_hash)) {
+        echo "Неверная ссылка\n";
+        die();
+    }
+
+    $salt = getenv("SALT");
+    $our_key_hash = md5(date("d/m/Y")." ".$salt);
+    echo $our_key_hash;
+
+    if(strcasecmp($our_key_hash, $key_hash) != 0) {
+        echo "Ссылка недействительна! Запросите новую!";
+        die();
+    }
+
     $db_url = getenv("DATABASE_URL");
     $dbconn = pg_connect($db_url);
 
     if($dbconn) {
-        $selectSql = 'SELECT page_html, date_added FROM html WHERE num = 100';
+        $selectSql = "SELECT page_html, date_added FROM html WHERE num = $salt";
         $result =  pg_query($dbconn, $selectSql);
 
         while ($row = pg_fetch_row($result)) {
@@ -21,7 +48,7 @@
 
     } else {
         echo '<pre>';
-        echo "Карта паркинга не подгрузилась.";
+        echo "Карта не подгрузилась.";
         echo '</pre>';
     };
 ?>

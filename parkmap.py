@@ -5,6 +5,9 @@ from config import HOME_URL
 import logging
 from dbhelper import DBHelper
 import io
+from datetime import datetime, timezone, timedelta
+from config import SALT
+import hashlib
 
 class ParkMap:
 
@@ -177,9 +180,25 @@ class ParkMap:
         return html_db_data
 
     @staticmethod
-    def show_map():
+    async def show_map():
         logging.info("show_map")
-        return HOME_URL + "index.php"
+        db = DBHelper()
+        map_key = await db.get_map_key()
+        logging.info(map_key)
+
+        offset = timedelta(hours=3)
+        tz = timezone(offset, name='МСК')
+        now = datetime.now(tz=tz)
+        date_today = now.strftime("%d/%m/%Y")
+        map_key_new = hashlib.md5(date_today + " " + SALT)
+
+        if (str(map_key_new).lower() != str(map_key).lower()):
+            db.update_map_key(map_key_new)
+            map_key = await db.get_map_key()
+            logging.info(map_key)
+        del db
+
+        return HOME_URL + "index.php?key=" + map_key 
         
 
 

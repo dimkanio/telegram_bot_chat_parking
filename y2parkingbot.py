@@ -613,7 +613,7 @@ async def prepare_common_info_for_message(dataset):
 
 async def prepare_mm_map_for_message():
     message = f"Карта паркинга. Цветом отмечены места, которые зарегистрированы у бота. Им можно написать сообщение по номеру машиноместа.\n\n"
-    message += ParkMap.show_map()  
+    message += await ParkMap.show_map()  
     return message
 
 async def prepare_tg_info_for_message(key, dataset):

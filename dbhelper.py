@@ -8,8 +8,9 @@ from aiogram.types import chat
 from dbdriver import DBDriver
 from aiogram import Bot, types
 from aiogram.dispatcher import FSMContext
-import hashlib
 from datetime import datetime, timezone, timedelta
+from config import SALT
+import hashlib
 
 class DBHelper:
 
@@ -415,8 +416,7 @@ class DBHelper:
 
         offset = timedelta(hours=3)
         tz = timezone(offset, name='МСК')
-        now = datetime.now()
-        tz.tzname(now)
+        now = datetime.now(tz=tz)
         dt_string = now.strftime("%d/%m/%Y %H:%M:%S")
 
         dialog_close_query = " UPDATE messages" + \
@@ -469,19 +469,21 @@ class DBHelper:
             
         offset = timedelta(hours=3)
         tz = timezone(offset, name='МСК')
-        now = datetime.now()
-        tz.tzname(now)
+        now = datetime.now(tz=tz)
         date_added = now.strftime("%d/%m/%Y %H:%M:%S")
+        date_today = now.strftime("%d/%m/%Y ")
+        map_key = hashlib.md5(date_today + SALT)
 
-        html_from_query = "INSERT INTO html AS h (num, page_html, date_added)" + \
-            " VALUES ({0}, '{1}', '{2}')".format('100', f_data, date_added) + \
+        html_from_query = "INSERT INTO html AS h (num, page_html, date_added, map_key)" + \
+            " VALUES ({0}, '{1}', '{2}', '{3}')".format(SALT, f_data, date_added, map_key) + \
             " ON CONFLICT (num) " + \
             " DO UPDATE " + \
             " SET page_html = '{0}' ".format(f_data) + \
             "   , date_added = '{0}' ".format(date_added) + \
-            " WHERE h.num = 100"
+            "   , map_key = '{0}' ".format(map_key) + \
+            " WHERE h.num = {0}}".format(SALT)
 
-        logging.info(html_from_query)
+        #logging.info(html_from_query)
         self.dbdriver.insert_query(html_from_query)   
         return True
 
@@ -493,7 +495,7 @@ class DBHelper:
             logging.error("DB DRIVER IS NOT FOUND!")
             return None
 
-        select_query = "SELECT page_html FROM html WHERE num = 100"
+        select_query = "SELECT page_html FROM html WHERE num = {0}}".format(SALT)
         html_row = self.dbdriver.select_query(query=select_query, qtype='all')
 
         #logging.info(str(html_row)) 
@@ -503,6 +505,44 @@ class DBHelper:
                 return cell['page_html']
         else:
             return 'Ошибка! Карта не подгрузилась!'
+
+    async def get_map_key(self):
+
+        logging.info("get_map_key()")
+
+        if not self.dbdriver:
+            logging.error("DB DRIVER IS NOT FOUND!")
+            return None
+
+        select_query = "SELECT map_key FROM html WHERE num = {0}}".format(SALT)
+        map_row = self.dbdriver.select_query(query=select_query, qtype='all')
+
+        #logging.info(str(html_row)) 
+
+        if map_row:
+            for cell in map_row:
+                return cell['map_key']
+        else:
+            return None
+
+    async def update_map_key(self, key):
+
+        logging.info("update_map_key(" + key + ")")
+
+        if not self.dbdriver:
+            logging.error("DB DRIVER IS NOT FOUND!")
+            return None
+
+        update_query = "UPDATE html SET map_key='{0}' WHERE num = {1}}".format(key, SALT)
+        map_row = self.dbdriver.update_query(query=update_query, qtype='all')
+
+        #logging.info(str(html_row)) 
+
+        if map_row:
+            for cell in map_row:
+                return cell['map_key']
+        else:
+            return None
 
 
 
