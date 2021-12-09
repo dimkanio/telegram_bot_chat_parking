@@ -533,7 +533,7 @@ class DBHelper:
             logging.error("DB DRIVER IS NOT FOUND!")
             return None
 
-        update_query = "UPDATE html SET map_key='{0}' WHERE num = {1}}".format(key, SALT)
+        update_query = "UPDATE html SET map_key='{0}' WHERE num = {1}".format(key, SALT)
         map_row = self.dbdriver.update_query(query=update_query, qtype='all')
 
         #logging.info(str(html_row)) 
