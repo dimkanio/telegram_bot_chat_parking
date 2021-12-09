@@ -21,6 +21,7 @@
     }
 
     $salt = getenv("SALT");
+    date_default_timezone_set('Europe/Moscow');
     $hash_string = date("d/m/Y")." ".$salt;
     $our_key_hash = md5(utf8_encode($hash_string));
 
