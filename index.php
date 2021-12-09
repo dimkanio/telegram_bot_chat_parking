@@ -25,7 +25,6 @@
     $salt = getenv("SALT");
     $hash_string = date("d/m/Y")." ".$salt;
     $our_key_hash = md5(utf8_encode($hash_string));
-    echo $our_key_hash;
 
     if(strcasecmp($our_key_hash, $key_hash) != 0) {
         echo "Ссылка недействительна! Запросите новую!";

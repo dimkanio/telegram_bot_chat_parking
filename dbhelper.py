@@ -473,7 +473,7 @@ class DBHelper:
         date_added = now.strftime("%d/%m/%Y %H:%M:%S")
         date_today = now.strftime("%d/%m/%Y")
         str_hash = date_today + " " + SALT
-        map_key = hashlib.md5(str_hash.encode('utf-8'))
+        map_key = hashlib.md5(str_hash.encode('utf-8')).hexdigest()
 
         html_from_query = "INSERT INTO html AS h (num, page_html, date_added, map_key)" + \
             " VALUES ({0}, '{1}', '{2}', '{3}')".format(SALT, f_data, date_added, map_key) + \
@@ -535,7 +535,7 @@ class DBHelper:
             return None
 
         update_query = "UPDATE html SET map_key='{0}' WHERE num = {1}".format(key, SALT)
-        map_row = self.dbdriver.update_query(query=update_query, qtype='all')
+        map_row = self.dbdriver.update_query(query=update_query)
 
         #logging.info(str(html_row)) 
 
