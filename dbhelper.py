@@ -471,8 +471,9 @@ class DBHelper:
         tz = timezone(offset, name='МСК')
         now = datetime.now(tz=tz)
         date_added = now.strftime("%d/%m/%Y %H:%M:%S")
-        date_today = now.strftime("%d/%m/%Y ")
-        map_key = hashlib.md5(date_today + SALT)
+        date_today = now.strftime("%d/%m/%Y")
+        str_hash = date_today + " " + SALT
+        map_key = hashlib.md5(str_hash)
 
         html_from_query = "INSERT INTO html AS h (num, page_html, date_added, map_key)" + \
             " VALUES ({0}, '{1}', '{2}', '{3}')".format(SALT, f_data, date_added, map_key) + \

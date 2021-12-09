@@ -190,7 +190,8 @@ class ParkMap:
         tz = timezone(offset, name='МСК')
         now = datetime.now(tz=tz)
         date_today = now.strftime("%d/%m/%Y")
-        map_key_new = hashlib.md5(date_today + " " + SALT)
+        str_hash = date_today + " " + SALT
+        map_key_new = hashlib.md5(str_hash)
 
         if (str(map_key_new).lower() != str(map_key).lower()):
             db.update_map_key(map_key_new)
