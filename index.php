@@ -5,14 +5,14 @@
  <body>
  <?php 
     if (!empty($_GET)) {
-        echo "Неверная ссылка!\n";
+        echo "Неверная ссылка !\n";
         die();
     }
 
     $key_hash = '';
     foreach ($_GET as $name=>$param){
 
-        if(strcasecmp($name, $key) == 0) {
+        if(strcasecmp($name, 'key') == 0) {
             $key_hash = $param;
         }
     } 
