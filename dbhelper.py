@@ -528,7 +528,7 @@ class DBHelper:
 
     async def update_map_key(self, key):
 
-        logging.info("update_map_key(" + key + ")")
+        logging.info("update_map_key(" + str(key) + ")")
 
         if not self.dbdriver:
             logging.error("DB DRIVER IS NOT FOUND!")
